@@ -26,7 +26,6 @@ export default function App() {
     // Updates the specified value
     // updating as a function queues it up properly
     validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, 1000);
-    // updateColonists(colonists => colonists + shipSize)
   }
 
   function dailyCycle() {
@@ -36,15 +35,16 @@ export default function App() {
     // 20000 pop guarentees 1 per cycle, which i think is realistic (world pop/births per day)
     let increase = Math.floor((Math.random() + 0.11) * ((colonists / 21500) + 0.92));
     updateDay(day + 1);
-    // console.log(((Math.random() + 0.11) * ((colonists / 21500) + 0.92)));
     validateIncrease(colonists, updateColonists, increase, housing);
-    // console.log("func", colonists)
-    // if (colonists + increase < housing){
-    //   updateColonists(colonists => colonists + increase)
-    // }
-    // else{
-    //   updateColonists(housing)
-    // }
+    if(jobs>colonists){
+      updateResources(resources+colonists)
+    }
+    else{updateResources(resources+jobs)}
+    
+  }
+
+  function upgradeJobs(){
+    updateJobs(jobs => jobs + 500)
   }
 
   function upgradeShip() {
@@ -55,6 +55,18 @@ export default function App() {
     updateHousing(housing => housing + 500);
   }
 
+  function jobLabel(){
+    if (jobs > colonists){
+      return [jobs-colonists, " Free jobs"]
+    }
+    else if(colonists>jobs){
+      return [colonists-jobs, " Unemployed"]
+    }
+    else{
+      return "job demand met"
+    }
+  }
+
   // console.log("before use ef", colonists)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,7 +74,7 @@ export default function App() {
       dailyCycle();
     }, 1000);
     return () => clearInterval(interval);
-  }, [colonists, day]);
+  }, [colonists, day, jobs, resources]);
 
   // console.log("main", colonists)
 
@@ -86,6 +98,7 @@ export default function App() {
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Colonist efficiency: 0-1</p>
+          <p className="stats-label border border-2">{jobLabel()}</p>
 
         </div>
 
@@ -110,7 +123,7 @@ export default function App() {
           <label htmlFor="upgrade-housing-but">Cost: x resources</label>
         </div>
         <div className="but-label">
-          <button onClick={upgradeHousing}id="upgrade-jobs-but">Create jobs (+500 jobs)</button>
+          <button onClick={upgradeJobs} id="upgrade-jobs-but">Create jobs (+500 jobs)</button>
           <label htmlFor="upgrade-jobs-but">Cost: x resources</label>
         </div>
       </div>
