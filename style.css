@@ -3,6 +3,16 @@ p, button{
   margin:4px;
 }
 
+.but-label button{
+  margin-top:2px;
+  margin-bottom:0px;
+}
+
+.but-label{
+  margin-bottom: 6px;
+  text-align: center;
+}
+
 .stats-block{
   display: flex;
   flex-direction: column;
@@ -25,5 +35,10 @@ button{
 .but-label{
   display:flex;
   flex-direction:column;
-  align-items:center;
+  /* align-items:center; */
+}
+
+.but-row{
+  display: flex;
+  flex-direction: row;
 }
