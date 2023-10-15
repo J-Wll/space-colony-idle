@@ -3,24 +3,29 @@ import { useState, useEffect } from "react";
 
 export default function App() {
   // [variable, functionToUpdate] = useState(defaultValue)
-  var [colonists, updateColonists] = useState(17);
-  var [shipSize, updateShipSize] = useState(500);
-  var [housing, updateHousing] = useState(10000000);
-  var [day, updateDay] = useState(1);
+  let [colonists, updateColonists] = useState(17);
+  let [shipSize, updateShipSize] = useState(500);
+  let [housing, updateHousing] = useState(10000000);
+  let [day, updateDay] = useState(1);
+  let [resources, updateResources] = useState(5000);
+  let [jobs, updateJobs] = useState(50)
 
-  function validateIncrease(variable, updateFunc, increase, maximum) {
-    if (variable + increase < maximum) {
-      updateFunc(variable + increase);
-    }
-    else {
-      updateFunc(maximum);
+  function validateIncrease(variable, updateFunc, increase, maximum, costVariable = resources, costFunc = updateResources, costAmount = 0) {
+    if (costAmount <= costVariable) {
+      if (variable + increase < maximum) {
+        updateFunc(variable + increase);
+        costFunc(costVariable - costAmount)
+      }
+      else {
+        updateFunc(maximum);
+      }
     }
   }
 
   function sendColonists(a) {
     // Updates the specified value
     // updating as a function queues it up properly
-    validateIncrease(colonists, updateColonists, shipSize, housing);
+    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, 1000);
     // updateColonists(colonists => colonists + shipSize)
   }
 
@@ -31,7 +36,7 @@ export default function App() {
     // 20000 pop guarentees 1 per cycle, which i think is realistic (world pop/births per day)
     let increase = Math.floor((Math.random() + 0.11) * ((colonists / 21500) + 0.92));
     updateDay(day + 1);
-    console.log(((Math.random() + 0.11) * ((colonists / 21500) + 0.92)));
+    // console.log(((Math.random() + 0.11) * ((colonists / 21500) + 0.92)));
     validateIncrease(colonists, updateColonists, increase, housing);
     // console.log("func", colonists)
     // if (colonists + increase < housing){
@@ -68,7 +73,7 @@ export default function App() {
       <section className="stats-block">
         <div className="stats-row">
           <p className="stats-label border border-2">{colonists} colonists</p>
-          <p className="stats-label border border-2">Resources: </p>
+          <p className="stats-label border border-2">Resources: {resources}</p>
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Daily growth rate: {Math.round(((colonists / 21500) + 0.04) * 100) / 100}</p>
@@ -77,7 +82,7 @@ export default function App() {
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Housing space: {housing}</p>
-          <p className="stats-label border border-2">Jobs: </p>
+          <p className="stats-label border border-2">Jobs: {jobs}</p>
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Colonist efficiency: 0-1</p>
@@ -90,23 +95,23 @@ export default function App() {
 
         <div className="but-label">
           <button id="send-ship-but" onClick={() => sendColonists(1)}>Send a colonist ship (+{+shipSize})</button>
-          <label for="send-ship-but">Cost: x resources</label>
+          <label htmlFor="send-ship-but">Cost: 1000 resources</label>
         </div>
 
         <div className="but-label">
-          <button onClick={upgradeShip}>Expand shipyards (+100 shipsize)</button>
-          <label for="">Cost: x resources</label>
+          <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100 shipsize)</button>
+          <label htmlFor="upgrade-ship-but">Cost: x resources</label>
         </div>
 
       </div>
       <div className="but-row">
         <div className="but-label">
-        <button onClick={upgradeHousing}>Expand housing (+500)</button>
-        <label for="">Cost: x resources</label>
+          <button onClick={upgradeHousing} id="upgrade-housing-but">Expand housing (+500)</button>
+          <label htmlFor="upgrade-housing-but">Cost: x resources</label>
         </div>
         <div className="but-label">
-          <button onClick={upgradeShip}>Expand shipyards (+100 shipsize)</button>
-          <label for="">Cost: x resources</label>
+          <button onClick={upgradeHousing}id="upgrade-jobs-but">Create jobs (+500 jobs)</button>
+          <label htmlFor="upgrade-jobs-but">Cost: x resources</label>
         </div>
       </div>
     </main>
