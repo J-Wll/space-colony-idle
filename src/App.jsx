@@ -5,7 +5,7 @@ export default function App() {
   // [variable, functionToUpdate] = useState(defaultValue)
   let [colonists, updateColonists] = useState(17);
   let [shipSize, updateShipSize] = useState(500);
-  let [housing, updateHousing] = useState(10000000);
+  let [housing, updateHousing] = useState(1000);
   let [day, updateDay] = useState(1);
   let [resources, updateResources] = useState(5000);
   let [jobs, updateJobs] = useState(50)
@@ -49,11 +49,13 @@ export default function App() {
   }
 
   function upgradeShip() {
-    updateShipSize(shipSize => shipSize + 100)
+    // updateShipSize(shipSize => shipSize + 100)
+    validateIncrease(shipSize, updateShipSize, 100, undefined, resources, updateResources, 1000);
   }
 
   function upgradeHousing() {
-    updateHousing(housing => housing + 500);
+    // updateHousing(housing => housing + 500);
+    validateIncrease(housing, updateHousing, 500, undefined, resources, updateResources, 1000);
   }
 
   function jobLabel() {
@@ -97,7 +99,7 @@ export default function App() {
           <p className="stats-label border border-2">Jobs: {jobs}</p>
         </div>
         <div className="stats-row">
-          <p className="stats-label border border-2">Colonist efficiency: 0-1</p>
+          {/* <p className="stats-label border border-2">Colonist efficiency: {jobs/colonists}</p> */}
           <p className="stats-label border border-2">{jobLabel()}</p>
 
         </div>
@@ -113,14 +115,14 @@ export default function App() {
 
         <div className="but-label">
           <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100 shipsize)</button>
-          <label htmlFor="upgrade-ship-but">Cost: x resources</label>
+          <label htmlFor="upgrade-ship-but">Cost: 1000 resources</label>
         </div>
 
       </div>
       <div className="but-row">
         <div className="but-label">
           <button onClick={upgradeHousing} id="upgrade-housing-but">Expand housing (+500)</button>
-          <label htmlFor="upgrade-housing-but">Cost: x resources</label>
+          <label htmlFor="upgrade-housing-but">Cost: 1000 resources</label>
         </div>
         <div className="but-label">
           <button onClick={upgradeJobs} id="upgrade-jobs-but">Create jobs (+500 jobs)</button>
