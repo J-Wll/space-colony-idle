@@ -10,22 +10,18 @@ export default function App() {
   let [resources, updateResources] = useState(5000);
   let [jobs, updateJobs] = useState(50)
 
-  function validateIncrease(variable, updateFunc, increase, maximum, costVariable = resources, costFunc = updateResources, costAmount = 0) {
+  // Increases values based on if it can be afforded and if it is below the maximum
+  // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
+  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0) {
     if (costAmount <= costVariable) {
-      if (variable + increase < maximum) {
-        updateFunc(variable + increase);
-        costFunc(costVariable - costAmount)
+      if (maximum === false || variable + increase < maximum) {
+        updateFunc(variable => variable + increase);
+        costFunc(costVariable => costVariable - costAmount)
       }
       else {
         updateFunc(maximum);
       }
     }
-  }
-
-  function sendColonists(a) {
-    // Updates the specified value
-    // updating as a function queues it up properly
-    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, 1000);
   }
 
   function dailyCycle() {
@@ -36,15 +32,20 @@ export default function App() {
     let increase = Math.floor((Math.random() + 0.11) * ((colonists / 21500) + 0.92));
     updateDay(day + 1);
     validateIncrease(colonists, updateColonists, increase, housing);
-    if(jobs>colonists){
-      updateResources(resources+colonists)
+    if (jobs > colonists) {
+      updateResources(resources + colonists)
     }
-    else{updateResources(resources+jobs)}
-    
+    else { updateResources(resources + jobs) }
+
   }
 
-  function upgradeJobs(){
-    updateJobs(jobs => jobs + 500)
+  function sendColonists(a) {
+    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, 1000);
+  }
+
+  function upgradeJobs() {
+    // updateJobs(jobs => jobs + 500)
+    validateIncrease(jobs, updateJobs, 500, undefined, resources, updateResources, 1000);
   }
 
   function upgradeShip() {
@@ -55,14 +56,14 @@ export default function App() {
     updateHousing(housing => housing + 500);
   }
 
-  function jobLabel(){
-    if (jobs > colonists){
-      return [jobs-colonists, " Free jobs"]
+  function jobLabel() {
+    if (jobs > colonists) {
+      return [jobs - colonists, " Free jobs"]
     }
-    else if(colonists>jobs){
-      return [colonists-jobs, " Unemployed"]
+    else if (colonists > jobs) {
+      return [colonists - jobs, " Unemployed"]
     }
-    else{
+    else {
       return "job demand met"
     }
   }
@@ -80,7 +81,6 @@ export default function App() {
 
   return (
     <main>
-      {/* <p>React ⚛️ + Vite ⚡ + Replit 🌀</p> */}
       <p className="fs-6">Day: {day}</p>
       <section className="stats-block">
         <div className="stats-row">
@@ -124,7 +124,7 @@ export default function App() {
         </div>
         <div className="but-label">
           <button onClick={upgradeJobs} id="upgrade-jobs-but">Create jobs (+500 jobs)</button>
-          <label htmlFor="upgrade-jobs-but">Cost: x resources</label>
+          <label htmlFor="upgrade-jobs-but">Cost: 1000 resources</label>
         </div>
       </div>
     </main>
