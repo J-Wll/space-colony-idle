@@ -116,12 +116,12 @@ export default function App() {
       <div className="but-row mt-2">
 
         <div className="but-label">
-          <button id="send-ship-but" onClick={() => sendColonists(1)}>Send a colonist ship (+{+shipSize})</button>
+          <button id="send-ship-but" onClick={() => sendColonists(1)}>Send a colonist ship (+{colonists+shipSize>housing ? housing-colonists : shipSize})</button>
           <label htmlFor="send-ship-but">Cost: 1000 resources</label>
         </div>
 
         <div className="but-label">
-          <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100 shipsize)</button>
+          <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100 ship size)</button>
           <label htmlFor="upgrade-ship-but">Cost: 1000 resources</label>
         </div>
 
