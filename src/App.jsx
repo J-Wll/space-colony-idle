@@ -8,7 +8,7 @@ export default function App() {
   let [housing, updateHousing] = useState(1000);
   let [day, updateDay] = useState(1);
   let [resources, updateResources] = useState(5000);
-  let [jobs, updateJobs] = useState(50)
+  let [jobs, updateJobs] = useState(100)
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
@@ -36,10 +36,8 @@ export default function App() {
   }
 
   function resourceGain() {
-    if (jobs > colonists) {
-      return(resources + colonists)
-    }
-    else {return(resources + jobs) }
+    return jobs > colonists ? resources + colonists
+      : resources + jobs
   }
 
   function sendColonists(a) {
@@ -107,7 +105,7 @@ export default function App() {
           {/* <p className="stats-label border border-2">Colonist efficiency: {jobs/colonists}</p> */}
           {/* <p className="stats-label border border-2">{jobLabel()}</p> */}
           {jobLabel()}
-          <p className="stats-label border border-2 green-text">Resource gain: {resourceGain()-resources}</p>
+          <p className="stats-label border border-2 green-text">Resource gain: {resourceGain() - resources}</p>
 
         </div>
 
@@ -116,12 +114,12 @@ export default function App() {
       <div className="but-row mt-2">
 
         <div className="but-label">
-          <button id="send-ship-but" onClick={() => sendColonists(1)}>Send a colonist ship (+{colonists+shipSize>housing ? housing-colonists : shipSize})</button>
+          <button id="send-ship-but" onClick={() => sendColonists(1)}>Send a colonist ship (+{colonists + shipSize > housing ? housing - colonists : shipSize})</button>
           <label htmlFor="send-ship-but">Cost: 1000 resources</label>
         </div>
 
         <div className="but-label">
-          <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100 ship size)</button>
+          <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100)</button>
           <label htmlFor="upgrade-ship-but">Cost: 1000 resources</label>
         </div>
 
