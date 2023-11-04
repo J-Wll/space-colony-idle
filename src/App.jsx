@@ -32,11 +32,14 @@ export default function App() {
     let increase = Math.floor((Math.random() + 0.11) * ((colonists / 21500) + 0.92));
     updateDay(day + 1);
     validateIncrease(colonists, updateColonists, increase, housing);
-    if (jobs > colonists) {
-      updateResources(resources + colonists)
-    }
-    else { updateResources(resources + jobs) }
+    updateResources(resourceGain());
+  }
 
+  function resourceGain() {
+    if (jobs > colonists) {
+      return(resources + colonists)
+    }
+    else {return(resources + jobs) }
   }
 
   function sendColonists(a) {
@@ -60,13 +63,15 @@ export default function App() {
 
   function jobLabel() {
     if (jobs > colonists) {
-      return [jobs - colonists, " Free jobs"]
+      return <p className="stats-label border border-2 green-text">{[jobs - colonists, " Free jobs"]}</p>
     }
     else if (colonists > jobs) {
-      return [colonists - jobs, " Unemployed"]
+      return <p className="stats-label border border-2 red-text">{[colonists - jobs, " Unemployed"]}</p>
+      // return [colonists - jobs, " Unemployed"]
     }
     else {
-      return "job demand met"
+      return <p className="stats-label border border-2 green-text">{"Job demand met"}</p>
+      // return "job demand met"
     }
   }
 
@@ -86,8 +91,8 @@ export default function App() {
       <p className="fs-6">Day: {day}</p>
       <section className="stats-block">
         <div className="stats-row">
-          <p className="stats-label border border-2">{colonists} colonists</p>
-          <p className="stats-label border border-2">Resources: {resources}</p>
+          <p className="stats-label border border-2 bold">{colonists} colonists</p>
+          <p className="stats-label border border-2 bold">Resources: {resources}</p>
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Daily growth rate: {Math.round(((colonists / 21500) + 0.04) * 100) / 100}</p>
@@ -100,7 +105,9 @@ export default function App() {
         </div>
         <div className="stats-row">
           {/* <p className="stats-label border border-2">Colonist efficiency: {jobs/colonists}</p> */}
-          <p className="stats-label border border-2">{jobLabel()}</p>
+          {/* <p className="stats-label border border-2">{jobLabel()}</p> */}
+          {jobLabel()}
+          <p className="stats-label border border-2 green-text">Resource gain: {resourceGain()-resources}</p>
 
         </div>
 

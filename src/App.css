@@ -1,0 +1,56 @@
+.bold{
+    font-weight: 700;
+}
+
+.green-text{
+    color: greenyellow;
+}
+
+.red-text{
+    color: rgb(255, 96, 96);
+}
+
+p, button{
+    /* font-size:1.02rem; */
+    margin:4px;
+  }
+  
+  .but-label button{
+    margin-top:2px;
+    margin-bottom:0px;
+  }
+  
+  .but-label{
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  
+  .stats-block{
+    display: flex;
+    flex-direction: column;
+    /* max-width: 50%; */
+  }
+  
+  .stats-label{
+    display: inline-block;
+    /* margin-right: 10px; */
+    padding:3px;
+    padding-left:11px;
+    width:250px;
+  }
+  
+  button{
+    width:250px;
+    height: 30px
+  }
+  
+  .but-label{
+    display:flex;
+    flex-direction:column;
+    /* align-items:center; */
+  }
+  
+  .but-row{
+    display: flex;
+    flex-direction: row;
+  }
