@@ -88,7 +88,7 @@ export default function App() {
   }, [colonists, day, jobs, resources]);
 
   let resGain = resourceGain() - resources;
-  let resColour = resGain > 0 ? "green-text" : "red-text" 
+  let resColour = resGain > 0 ? "green-text" : "red-text"
 
   return (
     <main>
@@ -117,24 +117,25 @@ export default function App() {
       <div className="but-row mt-2">
         <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
           butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-          labelText="Cost: 1000 resources" />
+          labelText={`Cost: 1000 resources`} />
 
-        <div className="but-label">
-          <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100)</button>
-          <label htmlFor="upgrade-ship-but">Cost: 1000 resources</label>
-        </div>
+        <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
+          butText={`Expand shipyards (+100)`} labelText={`Cost: 1000 resources`} />
       </div>
 
       <div className="but-row">
-        <div className="but-label">
-          <button onClick={upgradeHousing} id="upgrade-housing-but">Expand housing (+500)</button>
-          <label htmlFor="upgrade-housing-but">Cost: 1000 resources</label>
-        </div>
-        <div className="but-label">
-          <button onClick={upgradeJobs} id="upgrade-jobs-but">Create jobs (+500 jobs)</button>
-          <label htmlFor="upgrade-jobs-but">Cost: 1000 resources</label>
-        </div>
+        <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
+          butText={`Expand housing (+500)`} labelText={`Cost: 1000 resources`} />
+
+        <LabelledButton onClick={upgradeJobs}  id="upgrade-jobs-but" className=""
+        butText={`Create jobs (+500 jobs)`} labelText={`Cost: 1000 resources`}/>
       </div>
     </main>
   )
 }
+
+// todo:
+// Space Bureau upgrade, adds daily pop growth, maybe a daily resource cost
+// After purchasing it once (10000+ cost) it unlocks a new set of upgrades below the current ones
+
+// Resource cost scaling
