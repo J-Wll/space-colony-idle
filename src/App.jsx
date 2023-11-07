@@ -86,10 +86,6 @@ export default function App() {
     validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost);
   }
 
-  function buttonDisable() {
-
-  }
-
   function jobLabel() {
     if (jobs > colonists) {
       return <p className="stats-label border border-2 green-text">{[jobs - colonists, " Free jobs"]}</p>
@@ -101,11 +97,8 @@ export default function App() {
       return <p className="stats-label border border-2 green-text">{"Job demand met"}</p>
     }
   }
-
-  // console.log("before use ef", colonists)
   useEffect(() => {
     const interval = setInterval(() => {
-      // console.log("use ef", colonists)
       dailyCycle();
     }, 1000);
     return () => clearInterval(interval);
@@ -168,3 +161,7 @@ export default function App() {
 // Resource cost scaling
 
 // Make daily growth rate fully accurate and not just an estimation
+
+// Remove bootstrap (Not used enough to have it)
+
+// Colour of colonist ship turns red when there is no capcity (housing)
