@@ -134,7 +134,7 @@ export default function App() {
       <div className="but-row mt-2">
         <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
           butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-          resources={resources} cost={colonistsCost} />
+          resources={resources} cost={colonistsCost} space={housing-colonists}/>
 
         <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
           butText={`Expand shipyards (+${shipSizeIncrement})`}
@@ -164,4 +164,6 @@ export default function App() {
 
 // Remove bootstrap (Not used enough to have it)
 
-// Colour of colonist ship turns red when there is no capcity (housing)
+// Colour of colonist ship turns red when there is no capcity (housing) | done?
+
+// New upgrade that improves both housing and jobs increment (Improve construction capabilities or something)
