@@ -1,7 +1,9 @@
 import './App.css'
 import './LabelledButton'
+import './StatsLabel'
 import { useState, useEffect } from "react";
 import LabelledButton from './LabelledButton';
+import StatsLabel from './StatsLabel';
 
 export default function App() {
   // [variable, functionToUpdate] = useState(defaultValue)
@@ -88,12 +90,15 @@ export default function App() {
 
   function jobLabel() {
     if (jobs > colonists) {
+      return ["green-text", `${jobs - colonists} Free jobs`]
       return <p className="stats-label border border-2 green-text">{[jobs - colonists, " Free jobs"]}</p>
     }
     else if (colonists > jobs) {
+      return ["red-text", `${colonists - jobs} Unemployed`]
       return <p className="stats-label border border-2 red-text">{[colonists - jobs, " Unemployed"]}</p>
     }
     else {
+      return ["green-text", "Job demand met"]
       return <p className="stats-label border border-2 green-text">{"Job demand met"}</p>
     }
   }
@@ -104,37 +109,37 @@ export default function App() {
     return () => clearInterval(interval);
   }, [colonists, day, jobs, resources]);
 
-  let resGain = resourceGain() - resources;
-  let resColour = resGain > 0 ? "green-text" : "red-text"
+  function isResGain() {
+    return resourceGain() - resources > 0 ? "green-text" : "red-text"
+  }
 
+  let [jobLabelClass, textForJobLabel] = jobLabel()
   return (
     <main>
       <p className="fs-6">Day: {day}</p>
       <section className="stats-block">
         <div className="stats-row">
-          <p className="stats-label border border-2 bold">{colonists} colonists</p>
-          <p className="stats-label border border-2 bold">Resources: {resources.toFixed(2)}</p>
+          <StatsLabel className={`bold`} labelText={`${colonists} colonists`} />
+          <StatsLabel className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} />
         </div>
         <div className="stats-row">
-          <p className="stats-label border border-2">Housing space: {housing}</p>
-          <p className="stats-label border border-2">Jobs: {jobs}</p>
+          <StatsLabel className={``} labelText={`Housing space: ${housing}`} />
+          <StatsLabel className={``} labelText={`Jobs: ${jobs}`} />
         </div>
         <div className="stats-row">
-          <p className="stats-label border border-2">Daily growth rate: {popIncreaseAmount(true)}</p>
-          <p className="stats-label border border-2">Ship size: {shipSize}</p>
+          <StatsLabel className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} />
+          <StatsLabel className={``} labelText={`Ship size: ${shipSize}`} />
         </div>
         <div className="stats-row">
-          {/* <p className="stats-label border border-2">Colonist efficiency: {jobs/colonists}</p> */}
-          {/* <p className="stats-label border border-2">{jobLabel()}</p> */}
-          {jobLabel()}
-          <p className={`stats-label border border-2 ${resColour}`}>Resource gain: {(resourceGain() - resources).toFixed(2)}</p>
+          <StatsLabel className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} />
+          <StatsLabel className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} />
         </div>
       </section>
 
       <div className="but-row mt-2">
         <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
           butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-          resources={resources} cost={colonistsCost} space={housing-colonists}/>
+          resources={resources} cost={colonistsCost} space={housing - colonists} />
 
         <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
           butText={`Expand shipyards (+${shipSizeIncrement})`}
@@ -143,11 +148,11 @@ export default function App() {
 
       <div className="but-row">
         <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
-          butText={`Expand housing (+500)`}
+          butText={`Expand housing (+${housingIncrement})`}
           resources={resources} cost={housingCost} />
 
         <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
-          butText={`Create jobs (+500)`}
+          butText={`Create jobs (+${jobsIncrement})`}
           resources={resources} cost={jobsCost} />
       </div>
     </main>
@@ -158,12 +163,12 @@ export default function App() {
 // Space Bureau upgrade, adds daily pop growth, maybe a daily resource cost
 // After purchasing it once (10000+ cost) it unlocks a new set of upgrades below the current ones
 
-// Resource cost scaling
+// Resource cost scaling (Capacity for this implemented, but not really used yet)
 
 // Make daily growth rate fully accurate and not just an estimation
 
 // Remove bootstrap (Not used enough to have it)
 
-// Colour of colonist ship turns red when there is no capcity (housing) | done?
-
 // New upgrade that improves both housing and jobs increment (Improve construction capabilities or something)
+
+// Save/load buttons (Each stateful value pushed/retrived to/from local storage?)
