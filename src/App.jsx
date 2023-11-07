@@ -36,8 +36,9 @@ export default function App() {
   }
 
   function resourceGain() {
+    // Either adds colonists count or job count based on if there are more jobs than colonists. Unemployed colonists cost 0.01 per day.
     return jobs > colonists ? resources + colonists
-      : resources + jobs
+      : (resources + jobs) + ((jobs-colonists) * 0.01)
   }
 
   function sendColonists(a) {
@@ -90,7 +91,7 @@ export default function App() {
       <section className="stats-block">
         <div className="stats-row">
           <p className="stats-label border border-2 bold">{colonists} colonists</p>
-          <p className="stats-label border border-2 bold">Resources: {resources}</p>
+          <p className="stats-label border border-2 bold">Resources: {resources.toFixed(2)}</p>
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Daily growth rate: {Math.round(((colonists / 21500) + 0.04) * 100) / 100}</p>
@@ -105,7 +106,7 @@ export default function App() {
           {/* <p className="stats-label border border-2">Colonist efficiency: {jobs/colonists}</p> */}
           {/* <p className="stats-label border border-2">{jobLabel()}</p> */}
           {jobLabel()}
-          <p className="stats-label border border-2 green-text">Resource gain: {resourceGain() - resources}</p>
+          <p className="stats-label border border-2 green-text">Resource gain: {(resourceGain() - resources).toFixed(2)}</p>
 
         </div>
 
