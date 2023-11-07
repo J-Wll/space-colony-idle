@@ -1,5 +1,7 @@
 import './App.css'
+import './LabelledButton'
 import { useState, useEffect } from "react";
+import LabelledButton from './LabelledButton';
 
 export default function App() {
   // [variable, functionToUpdate] = useState(defaultValue)
@@ -38,7 +40,7 @@ export default function App() {
   function resourceGain() {
     // Either adds colonists count or job count based on if there are more jobs than colonists. Unemployed colonists cost 0.01 per day.
     return jobs > colonists ? resources + colonists
-      : (resources + jobs) + ((jobs-colonists) * 0.01)
+      : (resources + jobs) + ((jobs - colonists) * 0.01)
   }
 
   function sendColonists(a) {
@@ -58,6 +60,10 @@ export default function App() {
   function upgradeHousing() {
     // updateHousing(housing => housing + 500);
     validateIncrease(housing, updateHousing, 500, undefined, resources, updateResources, 1000);
+  }
+
+  function buttonDisable() {
+
   }
 
   function jobLabel() {
@@ -96,7 +102,6 @@ export default function App() {
         <div className="stats-row">
           <p className="stats-label border border-2">Daily growth rate: {Math.round(((colonists / 21500) + 0.04) * 100) / 100}</p>
           <p className="stats-label border border-2">Ship size: {shipSize}</p>
-
         </div>
         <div className="stats-row">
           <p className="stats-label border border-2">Housing space: {housing}</p>
@@ -107,24 +112,20 @@ export default function App() {
           {/* <p className="stats-label border border-2">{jobLabel()}</p> */}
           {jobLabel()}
           <p className="stats-label border border-2 green-text">Resource gain: {(resourceGain() - resources).toFixed(2)}</p>
-
         </div>
-
       </section>
 
       <div className="but-row mt-2">
-
-        <div className="but-label">
-          <button id="send-ship-but" onClick={() => sendColonists(1)}>Send a colonist ship (+{colonists + shipSize > housing ? housing - colonists : shipSize})</button>
-          <label htmlFor="send-ship-but">Cost: 1000 resources</label>
-        </div>
+        <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
+        butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
+        labelText="Cost: 1000 resources" />
 
         <div className="but-label">
           <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100)</button>
           <label htmlFor="upgrade-ship-but">Cost: 1000 resources</label>
         </div>
-
       </div>
+      
       <div className="but-row">
         <div className="but-label">
           <button onClick={upgradeHousing} id="upgrade-housing-but">Expand housing (+500)</button>
