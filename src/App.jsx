@@ -72,11 +72,9 @@ export default function App() {
     }
     else if (colonists > jobs) {
       return <p className="stats-label border border-2 red-text">{[colonists - jobs, " Unemployed"]}</p>
-      // return [colonists - jobs, " Unemployed"]
     }
     else {
       return <p className="stats-label border border-2 green-text">{"Job demand met"}</p>
-      // return "job demand met"
     }
   }
 
@@ -89,7 +87,8 @@ export default function App() {
     return () => clearInterval(interval);
   }, [colonists, day, jobs, resources]);
 
-  // console.log("main", colonists)
+  let resGain = resourceGain() - resources;
+  let resColour = resGain > 0 ? "green-text" : "red-text" 
 
   return (
     <main>
@@ -100,32 +99,32 @@ export default function App() {
           <p className="stats-label border border-2 bold">Resources: {resources.toFixed(2)}</p>
         </div>
         <div className="stats-row">
-          <p className="stats-label border border-2">Daily growth rate: {Math.round(((colonists / 21500) + 0.04) * 100) / 100}</p>
-          <p className="stats-label border border-2">Ship size: {shipSize}</p>
-        </div>
-        <div className="stats-row">
           <p className="stats-label border border-2">Housing space: {housing}</p>
           <p className="stats-label border border-2">Jobs: {jobs}</p>
+        </div>
+        <div className="stats-row">
+          <p className="stats-label border border-2">Daily growth rate: {Math.round(((colonists / 21500) + 0.04) * 100) / 100}</p>
+          <p className="stats-label border border-2">Ship size: {shipSize}</p>
         </div>
         <div className="stats-row">
           {/* <p className="stats-label border border-2">Colonist efficiency: {jobs/colonists}</p> */}
           {/* <p className="stats-label border border-2">{jobLabel()}</p> */}
           {jobLabel()}
-          <p className="stats-label border border-2 green-text">Resource gain: {(resourceGain() - resources).toFixed(2)}</p>
+          <p className={`stats-label border border-2 ${resColour}`}>Resource gain: {(resourceGain() - resources).toFixed(2)}</p>
         </div>
       </section>
 
       <div className="but-row mt-2">
         <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
-        butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-        labelText="Cost: 1000 resources" />
+          butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
+          labelText="Cost: 1000 resources" />
 
         <div className="but-label">
           <button onClick={upgradeShip} id="upgrade-ship-but" >Expand shipyards (+100)</button>
           <label htmlFor="upgrade-ship-but">Cost: 1000 resources</label>
         </div>
       </div>
-      
+
       <div className="but-row">
         <div className="but-label">
           <button onClick={upgradeHousing} id="upgrade-housing-but">Expand housing (+500)</button>
