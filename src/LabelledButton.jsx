@@ -1,14 +1,12 @@
 export default function LabelledButton(props) {
     let buyable;
-    if (props.resource >= props.cost){
-        buyable = "button-buyable"
-    } else {
-        buyable = "button-disabled"
-    }
+    buyable = props.resources >= props.cost ? "button-buyable"
+        : "button-disabled"
+
     return (
         <div className="but-label">
-            <button className = {`${props.className} ${buyable}`} id = {props.id} onClick={props.onClick}>{props.butText}</button>
-            <label htmlFor={props.id}>{props.labelText}</label>
+            <button className={`${props.className} ${buyable}`} id={props.id} onClick={props.onClick}>{props.butText}</button>
+            <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>
         </div>
     )
 }

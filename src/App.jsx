@@ -5,23 +5,36 @@ import LabelledButton from './LabelledButton';
 
 export default function App() {
   // [variable, functionToUpdate] = useState(defaultValue)
-  let [colonists, updateColonists] = useState(17);
-  let [housing, updateHousing] = useState(1000);
   let [day, updateDay] = useState(1);
   let [resources, updateResources] = useState(5000);
-  let [jobs, updateJobs] = useState(100)
 
   let [shipSize, updateShipSize] = useState(500);
   let [shipSizeCost, updateShipSizeCost] = useState(5000)
   let [shipSizeIncrement, updateShipSizeIncrement] = useState(500)
 
+  let [colonists, updateColonists] = useState(17);
+  let [colonistsCost, updateColonistsCost] = useState(1000);
+  // Colonists increment is shipsize (in the context of its button)
+
+  let [housing, updateHousing] = useState(1000);
+  let [housingCost, updateHousingCost] = useState(1000);
+  let [housingIncrement, updateHousingIncrement] = useState(500);
+
+  let [jobs, updateJobs] = useState(100)
+  let [jobsCost, updateJobsCost] = useState(1000)
+  let [jobsIncrement, updateJobsIncrement] = useState(500)
+
+
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
-  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0) {
+  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
         updateFunc(variable => variable + increase);
         costFunc(costVariable => costVariable - costAmount)
+        if (costIncrementUpdateFunc != false) {
+          costIncrementUpdateFunc(costAmount => costAmount *= 1.01)
+        }
       }
       else {
         updateFunc(maximum);
@@ -58,19 +71,19 @@ export default function App() {
   }
 
   function sendColonists(a) {
-    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, 1000);
+    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, colonistsCost, updateColonistsCost);
   }
 
   function upgradeJobs() {
-    validateIncrease(jobs, updateJobs, 500, undefined, resources, updateResources, 1000);
+    validateIncrease(jobs, updateJobs, jobsIncrement, undefined, resources, updateResources, jobsCost, updateJobsCost);
   }
 
   function upgradeShip() {
-    validateIncrease(shipSize, updateShipSize, shipSizeIncrement, undefined, resources, updateResources, shipSizeCost);
+    validateIncrease(shipSize, updateShipSize, shipSizeIncrement, undefined, resources, updateResources, shipSizeCost, updateShipSizeCost);
   }
 
   function upgradeHousing() {
-    validateIncrease(housing, updateHousing, 500, undefined, resources, updateResources, 1000);
+    validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost);
   }
 
   function buttonDisable() {
@@ -128,21 +141,21 @@ export default function App() {
       <div className="but-row mt-2">
         <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
           butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-          labelText={`Cost: 1000 resources`} resource={resources} cost={1000} />
+          resources={resources} cost={colonistsCost} />
 
         <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-          butText={`Expand shipyards (+${shipSizeIncrement})`} labelText={`Cost: ${shipSizeCost} resources`}
-          resource={resources} cost={shipSizeCost} />
+          butText={`Expand shipyards (+${shipSizeIncrement})`}
+          resources={resources} cost={shipSizeCost} />
       </div>
 
       <div className="but-row">
         <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
-          butText={`Expand housing (+500)`} labelText={`Cost: 1000 resources`}
-          resource={resources} cost={1000} />
+          butText={`Expand housing (+500)`}
+          resources={resources} cost={housingCost} />
 
         <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
-          butText={`Create jobs (+500 jobs)`} labelText={`Cost: 1000 resources`}
-          resource={resources} cost={1000} />
+          butText={`Create jobs (+500)`}
+          resources={resources} cost={jobsCost} />
       </div>
     </main>
   )
