@@ -1,9 +1,9 @@
-import './App.css'
-import './LabelledButton'
-import './StatsLabel'
 import { useState, useEffect } from "react";
+import './App.css'
 import LabelledButton from './LabelledButton';
 import StatsLabel from './StatsLabel';
+import ButtonBlock from './ButtonBlock'
+import StatsBlock from './StatsBlock.jsx'
 
 export default function App() {
   // [variable, functionToUpdate] = useState(defaultValue)
@@ -100,7 +100,7 @@ export default function App() {
     validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost);
   }
 
-  function upgradeConstruction(){
+  function upgradeConstruction() {
 
   }
 
@@ -127,49 +127,45 @@ export default function App() {
   return (
     <main>
       <p className="fs-6">Day: {day}</p>
-      <section className="stats-block">
-        <div className="stats-row">
-          <StatsLabel className={`bold`} labelText={`${colonists} colonists`} />
-          <StatsLabel className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} />
+      <StatsBlock
+        components = {[
+          <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} />,
+          <StatsLabel key="2" className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} />,
+          <StatsLabel key="3" className={``} labelText={`Housing space: ${housing}`} />,
+          <StatsLabel key="4" className={``} labelText={`Jobs: ${jobs}`} />,
+          <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} />,
+          <StatsLabel key="6" className={``} labelText={`Ship size: ${shipSize}`} />,
+          <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} />,
+          <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} />,
+        ]}
+      />
+
+      <div className='button-block'>
+        <div className="but-row mt-2">
+          <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
+            butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
+            resources={resources} cost={colonistsCost} space={housing - colonists} />
+
+          <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
+            butText={`Expand shipyards (+${shipSizeIncrement})`}
+            resources={resources} cost={shipSizeCost} />
         </div>
-        <div className="stats-row">
-          <StatsLabel className={``} labelText={`Housing space: ${housing}`} />
-          <StatsLabel className={``} labelText={`Jobs: ${jobs}`} />
+
+        <div className="but-row">
+          <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
+            butText={`Expand housing (+${housingIncrement})`}
+            resources={resources} cost={housingCost} />
+
+          <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
+            butText={`Create jobs (+${jobsIncrement})`}
+            resources={resources} cost={jobsCost} />
         </div>
-        <div className="stats-row">
-          <StatsLabel className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} />
-          <StatsLabel className={``} labelText={`Ship size: ${shipSize}`} />
+
+        <div className="but-row">
+          <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
+            butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
+            resources={resources} cost={constructionQualityCost} />
         </div>
-        <div className="stats-row">
-          <StatsLabel className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} />
-          <StatsLabel className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} />
-        </div>
-      </section>
-
-      <div className="but-row mt-2">
-        <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
-          butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-          resources={resources} cost={colonistsCost} space={housing - colonists} />
-
-        <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-          butText={`Expand shipyards (+${shipSizeIncrement})`}
-          resources={resources} cost={shipSizeCost} />
-      </div>
-
-      <div className="but-row">
-        <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
-          butText={`Expand housing (+${housingIncrement})`}
-          resources={resources} cost={housingCost} />
-
-        <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
-          butText={`Create jobs (+${jobsIncrement})`}
-          resources={resources} cost={jobsCost} />
-      </div>
-
-      <div className="but-row">
-        <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
-          butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
-          resources={resources} cost={constructionQualityCost} />
       </div>
     </main>
   )
