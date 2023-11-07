@@ -26,16 +26,34 @@ export default function App() {
   let [jobsCost, updateJobsCost] = useState(1000)
   let [jobsIncrement, updateJobsIncrement] = useState(500)
 
+  let [constructionQuality, updateConstructionQuality] = useState(1)
+  let [constructionQualityCost, updateConstructionQualityCost] = useState(20000)
+  let [constructionQualityIncrement, updateConstructionQualityIncrement] = useState(1)
+
+  // Triggers dailyCycle every second, passes in dependencies(Ones that change often)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dailyCycle();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [colonists, day, jobs, resources]);
+
+  // Runs every second and is responsible for value changes
+  function dailyCycle() {
+    updateDay(day + 1);
+    validateIncrease(colonists, updateColonists, popIncreaseAmount(), housing);
+    updateResources(resourceGain());
+  }
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
-  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false) {
+  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.01) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
         updateFunc(variable => variable + increase);
         costFunc(costVariable => costVariable - costAmount)
         if (costIncrementUpdateFunc != false) {
-          costIncrementUpdateFunc(costAmount => costAmount *= 1.01)
+          costIncrementUpdateFunc(costAmount => costAmount *= incrementScale)
         }
       }
       else {
@@ -44,12 +62,6 @@ export default function App() {
     }
   }
 
-  // Runs every second and is responsible for value changes
-  function dailyCycle() {
-    updateDay(day + 1);
-    validateIncrease(colonists, updateColonists, popIncreaseAmount(), housing);
-    updateResources(resourceGain());
-  }
 
   function popIncreaseAmount(display = false) {
     // Rounded down(0.11-1.11 * (colonists/21500) + 0.92)
@@ -88,6 +100,10 @@ export default function App() {
     validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost);
   }
 
+  function upgradeConstruction(){
+
+  }
+
   function jobLabel() {
     if (jobs > colonists) {
       return ["green-text", `${jobs - colonists} Free jobs`]
@@ -102,12 +118,6 @@ export default function App() {
       return <p className="stats-label border border-2 green-text">{"Job demand met"}</p>
     }
   }
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dailyCycle();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [colonists, day, jobs, resources]);
 
   function isResGain() {
     return resourceGain() - resources > 0 ? "green-text" : "red-text"
@@ -154,6 +164,12 @@ export default function App() {
         <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
           butText={`Create jobs (+${jobsIncrement})`}
           resources={resources} cost={jobsCost} />
+      </div>
+
+      <div className="but-row">
+        <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
+          butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
+          resources={resources} cost={constructionQualityCost} />
       </div>
     </main>
   )
