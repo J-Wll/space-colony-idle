@@ -47,10 +47,10 @@ export default function App() {
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
-  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.01) {
+  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.01, multiplier = 1) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
-        updateFunc(variable => variable + increase);
+        updateFunc(variable => variable + (increase * multiplier));
         costFunc(costVariable => costVariable - costAmount)
         if (costIncrementUpdateFunc != false) {
           costIncrementUpdateFunc(costAmount => costAmount *= incrementScale)
@@ -88,20 +88,20 @@ export default function App() {
     validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, colonistsCost, updateColonistsCost);
   }
 
-  function upgradeJobs() {
-    validateIncrease(jobs, updateJobs, jobsIncrement, undefined, resources, updateResources, jobsCost, updateJobsCost);
-  }
-
   function upgradeShip() {
     validateIncrease(shipSize, updateShipSize, shipSizeIncrement, undefined, resources, updateResources, shipSizeCost, updateShipSizeCost);
   }
 
+  function upgradeJobs() {
+    validateIncrease(jobs, updateJobs, jobsIncrement, undefined, resources, updateResources, jobsCost, updateJobsCost, undefined,  constructionQuality);
+  }
+
   function upgradeHousing() {
-    validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost);
+    validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost, undefined, constructionQuality);
   }
 
   function upgradeConstruction() {
-
+    validateIncrease(constructionQuality, updateConstructionQuality, constructionQualityIncrement, undefined, resources, updateResources, constructionQualityCost, updateConstructionQualityCost);
   }
 
   function jobLabel() {
@@ -128,7 +128,7 @@ export default function App() {
     <main>
       <p className="fs-6">Day: {day}</p>
       <StatsBlock
-        components = {[
+        components={[
           <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} />,
           <StatsLabel key="2" className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} />,
           <StatsLabel key="3" className={``} labelText={`Housing space: ${housing}`} />,
@@ -137,6 +137,7 @@ export default function App() {
           <StatsLabel key="6" className={``} labelText={`Ship size: ${shipSize}`} />,
           <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} />,
           <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} />,
+          <StatsLabel key="9" className={``} labelText={`Construction quality: ${constructionQuality}`} />
         ]}
       />
 
@@ -153,11 +154,11 @@ export default function App() {
 
         <div className="but-row">
           <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
-            butText={`Expand housing (+${housingIncrement})`}
+            butText={`Expand housing (+${housingIncrement * constructionQuality})`}
             resources={resources} cost={housingCost} />
 
           <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
-            butText={`Create jobs (+${jobsIncrement})`}
+            butText={`Create jobs (+${jobsIncrement * constructionQuality})`}
             resources={resources} cost={jobsCost} />
         </div>
 
