@@ -30,6 +30,9 @@ export default function App() {
   let [constructionQualityCost, updateConstructionQualityCost] = useState(20000)
   let [constructionQualityIncrement, updateConstructionQualityIncrement] = useState(1)
 
+  let [resourcesPerWorker, updateResourcesPerWorker] = useState(1);
+  let [costPerUnemployed, updateCostPerUnemployed] = useState(0.01);
+
   // Triggers dailyCycle every second, passes in dependencies(Ones that change often)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -80,8 +83,8 @@ export default function App() {
 
   function resourceGain() {
     // Either adds colonists count or job count based on if there are more jobs than colonists. Unemployed colonists cost 0.01 per day.
-    return jobs > colonists ? resources + colonists
-      : (resources + jobs) + ((jobs - colonists) * 0.01)
+    return jobs > colonists ? resources + (colonists*resourcesPerWorker)
+      : (resources + (jobs*resourcesPerWorker)) + ((jobs - colonists) * costPerUnemployed)
   }
 
   function sendColonists(a) {
@@ -159,11 +162,11 @@ export default function App() {
         <div className="but-row">
           <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
             butText={`Expand housing (+${housingIncreaseMul})`}
-            resources={resources} cost={housingCost} tooltipText = {`Adds ${housingIncreaseMul} housing space`}/>
+            resources={resources} cost={housingCost} tooltipText = {`Adds ${housingIncreaseMul} housing space for colonists`}/>
 
           <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
             butText={`Create jobs (+${jobsIncreaseMul})`}
-            resources={resources} cost={jobsCost} tooltipText = {`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces 1 resource by default per day, unemployed colonists have a small cost`}/>
+            resources={resources} cost={jobsCost} tooltipText = {`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${resourcesPerWorker} ${resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${costPerUnemployed} resources daily`}/>
         </div>
 
         <div className="but-row">
