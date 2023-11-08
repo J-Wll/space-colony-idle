@@ -2,23 +2,29 @@ import ToolTip from "./ToolTip";
 import "./css/StatsAndButtons.css"
 
 export default function LabelledButton(props) {
-    if (props.noRender === "true"){
-        return(<></>)
-    } 
+    if (props.noRender === "true") {
+        return (<></>)
+    }
 
     let buyable;
     buyable = props.resources >= props.cost ? "button-buyable"
         : "button-disabled"
-
-    if (props.space === 0){
+    if (props.space === 0) {
         buyable = "button-disabled"
     }
 
+    console.log(props.id);
+    console.log(props.cost);
+
+    let Clabel = props.cost != undefined ? <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>  : <></>
+    // let Clabel = "ifoj"
+
     return (
         <div className="but-label tooltip">
-            <button className={`${props.className} ${buyable}`} id={props.id} onClick={props.onClick}>{props.butText}</button>
-            <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>
-            <ToolTip tooltipText={props.tooltipText}/>
+            <button className={`${buyable} ${props.className} `} id={props.id} onClick={props.onClick}>{props.butText}</button>
+            {Clabel}
+            {/* <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label> */}
+            <ToolTip tooltipText={props.tooltipText} />
             {/* <span className="tooltip-body"><p className="tooltip-text">{props.tooltipText}</p></span> */}
         </div>
     )

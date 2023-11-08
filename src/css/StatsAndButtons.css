@@ -42,7 +42,8 @@ button {
 }
 
 label {
-    font-size: 1.1rem;
+    margin-top: 1px;
+    font-size: 1.0rem;
 }
 
 .but-label button {
@@ -104,6 +105,10 @@ button {
 .button-disabled {
     color: rgb(255, 255, 255);
     border-color: red;
+}
+
+.button-neutral{
+    border-color: rgb(255, 255, 255);
 }
 
 .stats-label-div {

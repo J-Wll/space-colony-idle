@@ -50,7 +50,7 @@ export default function App() {
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
-  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.01, multiplier = 1) {
+  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.00, multiplier = 1) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
         updateFunc(variable => variable + (increase * multiplier));
@@ -83,20 +83,20 @@ export default function App() {
 
   function resourceGain() {
     // Either adds colonists count or job count based on if there are more jobs than colonists. Unemployed colonists cost 0.01 per day.
-    return jobs > colonists ? resources + (colonists*resourcesPerWorker)
-      : (resources + (jobs*resourcesPerWorker)) + ((jobs - colonists) * costPerUnemployed)
+    return jobs > colonists ? resources + (colonists * resourcesPerWorker)
+      : (resources + (jobs * resourcesPerWorker)) + ((jobs - colonists) * costPerUnemployed)
   }
 
   function sendColonists(a) {
-    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, colonistsCost, updateColonistsCost);
+    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, colonistsCost, updateColonistsCost, 1, 1);
   }
 
   function upgradeShip() {
-    validateIncrease(shipSize, updateShipSize, shipSizeIncrement, undefined, resources, updateResources, shipSizeCost, updateShipSizeCost);
+    validateIncrease(shipSize, updateShipSize, shipSizeIncrement, undefined, resources, updateResources, shipSizeCost, updateShipSizeCost, 1.5, 1);
   }
 
   function upgradeJobs() {
-    validateIncrease(jobs, updateJobs, jobsIncrement, undefined, resources, updateResources, jobsCost, updateJobsCost, undefined,  constructionQuality);
+    validateIncrease(jobs, updateJobs, jobsIncrement, undefined, resources, updateResources, jobsCost, updateJobsCost, undefined, constructionQuality);
   }
 
   function upgradeHousing() {
@@ -104,21 +104,26 @@ export default function App() {
   }
 
   function upgradeConstruction() {
-    validateIncrease(constructionQuality, updateConstructionQuality, constructionQualityIncrement, undefined, resources, updateResources, constructionQualityCost, updateConstructionQualityCost);
+    validateIncrease(constructionQuality, updateConstructionQuality, constructionQualityIncrement, undefined, resources, updateResources, constructionQualityCost, updateConstructionQualityCost, 1.5, 1);
+  }
+
+  function saveGame() {
+
+  }
+
+  function loadGame(){
+    
   }
 
   function jobLabel() {
     if (jobs > colonists) {
       return ["green-text", `${jobs - colonists} Free jobs`]
-      return <p className="stats-label border border-2 green-text">{[jobs - colonists, " Free jobs"]}</p>
     }
     else if (colonists > jobs) {
       return ["red-text", `${colonists - jobs} Unemployed`]
-      return <p className="stats-label border border-2 red-text">{[colonists - jobs, " Unemployed"]}</p>
     }
     else {
       return ["green-text", "Job demand met"]
-      return <p className="stats-label border border-2 green-text">{"Job demand met"}</p>
     }
   }
 
@@ -129,22 +134,22 @@ export default function App() {
   // values for stats/buttons
   let [jobLabelClass, textForJobLabel] = jobLabel();
   let colonistIncrease = colonists + shipSize > housing ? housing - colonists : shipSize;
-  let housingIncreaseMul = housingIncrement*constructionQuality;
-  let jobsIncreaseMul = jobsIncrement*constructionQuality;
+  let housingIncreaseMul = housingIncrement * constructionQuality;
+  let jobsIncreaseMul = jobsIncrement * constructionQuality;
   return (
     <main>
       <p className="fs-1r">Day: {day}</p>
       <StatsBlock
         components={[
-          <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} />,
-          <StatsLabel key="2" className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} />,
-          <StatsLabel key="3" className={``} labelText={`Housing space: ${housing}`} />,
-          <StatsLabel key="4" className={``} labelText={`Jobs: ${jobs}`} />,
-          <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} />,
-          <StatsLabel key="6" className={``} labelText={`Ship size: ${shipSize}`} />,
-          <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} />,
-          <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} />,
-          <StatsLabel key="9" className={``} labelText={`Construction quality: ${constructionQuality}`} />
+          <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} tooltipText={`Colonists require housing and either produce resources or cost a small amount depending on employement`} />,
+          <StatsLabel key="2" className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} tooltipText={`Used to upgrade most game features${""}`} />,
+          <StatsLabel key="3" className={``} labelText={`Housing space: ${housing}`} tooltipText={`Required to house colonists${""}`} />,
+          <StatsLabel key="4" className={``} labelText={`Jobs: ${jobs}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
+          <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} tooltipText={`Approximate population gain per day${""}`} />,
+          <StatsLabel key="6" className={``} labelText={`Ship size: ${shipSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
+          <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} tooltipText={`Amount of free jobs/unemployed colonists${""}`} />,
+          <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
+          <StatsLabel key="9" className={``} labelText={`Construction quality: ${constructionQuality}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
         ]}
       />
 
@@ -152,27 +157,37 @@ export default function App() {
         <div className="display-row">
           <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
             butText={`Send a colonist ship (+${colonistIncrease})`}
-            resources={resources} cost={colonistsCost} space={housing - colonists} tooltipText = {`Increases the amount of colonists by ${colonistIncrease}`}/>
+            resources={resources} cost={colonistsCost} space={housing - colonists} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
 
           <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
             butText={`Expand shipyards (+${shipSizeIncrement})`}
-            resources={resources} cost={shipSizeCost} tooltipText = {`Increases the amount of colonists per ship by ${shipSizeIncrement}`}/>
+            resources={resources} cost={shipSizeCost} tooltipText={`Increases the amount of colonists per ship by ${shipSizeIncrement}`} />
         </div>
 
         <div className="display-row">
           <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
             butText={`Expand housing (+${housingIncreaseMul})`}
-            resources={resources} cost={housingCost} tooltipText = {`Adds ${housingIncreaseMul} housing space for colonists`}/>
+            resources={resources} cost={housingCost} tooltipText={`Adds ${housingIncreaseMul} housing space for colonists`} />
 
           <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
             butText={`Create jobs (+${jobsIncreaseMul})`}
-            resources={resources} cost={jobsCost} tooltipText = {`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${resourcesPerWorker} ${resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${costPerUnemployed} resources daily`}/>
+            resources={resources} cost={jobsCost} tooltipText={`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${resourcesPerWorker} ${resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${costPerUnemployed} resources daily`} />
         </div>
 
         <div className="display-row">
           <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
             butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
-            resources={resources} cost={constructionQualityCost} tooltipText = {`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`}/>
+            resources={resources} cost={constructionQualityCost} tooltipText={`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
+        </div>
+      </div>
+
+      <div className='button-block mt-2r'>
+        <div className="display-row">
+          <LabelledButton onClick={saveGame} id="save-game-but" className="button-neutral"
+            butText={`Save game`} tooltipText={`Saves the game`} />
+
+          <LabelledButton onClick={loadGame} id="load-game-but" className="button-neutral"
+            butText={`Load game`} tooltipText={`Loads the game`} />
         </div>
       </div>
     </main>
