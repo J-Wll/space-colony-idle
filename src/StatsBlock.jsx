@@ -8,7 +8,7 @@ export default function StatsBlock(props) {
         }
      }) 
 
-     rowComponents = rowComponents.map((set)=><div className="stats-row">{set}</div>)
+     rowComponents = rowComponents.map((set, index)=><div className="stats-row">{set}</div>)
 
     return (
         <section className="stats-block">

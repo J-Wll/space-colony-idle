@@ -1,4 +1,8 @@
 export default function LabelledButton(props) {
+    if (props.noRender === "true"){
+        return(<></>)
+    } 
+
     let buyable;
     buyable = props.resources >= props.cost ? "button-buyable"
         : "button-disabled"
@@ -8,9 +12,10 @@ export default function LabelledButton(props) {
     }
 
     return (
-        <div className="but-label">
+        <div className="but-label tooltip">
             <button className={`${props.className} ${buyable}`} id={props.id} onClick={props.onClick}>{props.butText}</button>
             <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>
+            <span className="tooltip-text">{props.tooltipText}</span>
         </div>
     )
 }

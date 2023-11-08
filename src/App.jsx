@@ -123,10 +123,12 @@ export default function App() {
     return resourceGain() - resources > 0 ? "green-text" : "red-text"
   }
 
+  // values for stats/buttons
   let [jobLabelClass, textForJobLabel] = jobLabel()
+  let colonistIncrease = colonists + shipSize > housing ? housing - colonists : shipSize
   return (
     <main>
-      <p className="fs-6">Day: {day}</p>
+      <p className="fs-1r">Day: {day}</p>
       <StatsBlock
         components={[
           <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} />,
@@ -141,11 +143,11 @@ export default function App() {
         ]}
       />
 
-      <div className='button-block'>
-        <div className="but-row mt-2">
+      <div className='button-block mt-2r'>
+        <div className="but-row">
           <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
-            butText={`Send a colonist ship (+${colonists + shipSize > housing ? housing - colonists : shipSize})`}
-            resources={resources} cost={colonistsCost} space={housing - colonists} />
+            butText={`Send a colonist ship (+${colonistIncrease})`}
+            resources={resources} cost={colonistsCost} space={housing - colonists} tooltipText = {`Increases the amount of colonists by ${colonistIncrease}`}/>
 
           <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
             butText={`Expand shipyards (+${shipSizeIncrement})`}

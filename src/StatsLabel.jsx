@@ -1,6 +1,6 @@
 export default function StatsLabel(props){
     return(
-        <p className={`stats-label border border-2 + ${props.className}`}>{props.labelText}</p>
+        <p className={`stats-label border ${props.className}`}>{props.labelText}</p>
     )
 }
 
