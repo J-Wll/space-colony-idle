@@ -15,7 +15,7 @@ export default function LabelledButton(props) {
         <div className="but-label tooltip">
             <button className={`${props.className} ${buyable}`} id={props.id} onClick={props.onClick}>{props.butText}</button>
             <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>
-            <span className="tooltip-text">{props.tooltipText}</span>
+            <span className="tooltip-body"><p className="tooltip-text">{props.tooltipText}</p></span>
         </div>
     )
 }

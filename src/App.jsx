@@ -124,8 +124,10 @@ export default function App() {
   }
 
   // values for stats/buttons
-  let [jobLabelClass, textForJobLabel] = jobLabel()
-  let colonistIncrease = colonists + shipSize > housing ? housing - colonists : shipSize
+  let [jobLabelClass, textForJobLabel] = jobLabel();
+  let colonistIncrease = colonists + shipSize > housing ? housing - colonists : shipSize;
+  let housingIncreaseMul = housingIncrement*constructionQuality;
+  let jobsIncreaseMul = jobsIncrement*constructionQuality;
   return (
     <main>
       <p className="fs-1r">Day: {day}</p>
@@ -151,23 +153,23 @@ export default function App() {
 
           <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
             butText={`Expand shipyards (+${shipSizeIncrement})`}
-            resources={resources} cost={shipSizeCost} />
+            resources={resources} cost={shipSizeCost} tooltipText = {`Increases the amount of colonists per ship by ${shipSizeIncrement}`}/>
         </div>
 
         <div className="but-row">
           <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
-            butText={`Expand housing (+${housingIncrement * constructionQuality})`}
-            resources={resources} cost={housingCost} />
+            butText={`Expand housing (+${housingIncreaseMul})`}
+            resources={resources} cost={housingCost} tooltipText = {`Adds ${housingIncreaseMul} housing space`}/>
 
           <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
-            butText={`Create jobs (+${jobsIncrement * constructionQuality})`}
-            resources={resources} cost={jobsCost} />
+            butText={`Create jobs (+${jobsIncreaseMul})`}
+            resources={resources} cost={jobsCost} tooltipText = {`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces 1 resource by default per day, unemployed colonists have a small cost`}/>
         </div>
 
         <div className="but-row">
           <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
             butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
-            resources={resources} cost={constructionQualityCost} />
+            resources={resources} cost={constructionQualityCost} tooltipText = {`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`}/>
         </div>
       </div>
     </main>
