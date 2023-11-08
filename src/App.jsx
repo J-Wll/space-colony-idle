@@ -111,8 +111,8 @@ export default function App() {
 
   }
 
-  function loadGame(){
-    
+  function loadGame() {
+
   }
 
   function jobLabel() {
@@ -178,16 +178,20 @@ export default function App() {
           <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
             butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
             resources={resources} cost={constructionQualityCost} tooltipText={`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
+
+          <LabelledButton onClick={""} id="" className=""
+            butText={`TODO Space Tourism Bureau`}
+            resources={resources} cost={100000} tooltipText={`Adds daily colonists, one off purchase that unlocks a new set of upgrades`} />
         </div>
       </div>
 
       <div className='button-block mt-2r'>
         <div className="display-row">
           <LabelledButton onClick={saveGame} id="save-game-but" className="button-neutral"
-            butText={`Save game`} tooltipText={`Saves the game`} />
+            butText={`TODO Save game`} tooltipText={`Saves the game`} />
 
           <LabelledButton onClick={loadGame} id="load-game-but" className="button-neutral"
-            butText={`Load game`} tooltipText={`Loads the game`} />
+            butText={`TODO Load game`} tooltipText={`Loads the game`} />
         </div>
       </div>
     </main>
