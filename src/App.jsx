@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import './App.css'
+import './css/App.css'
 import LabelledButton from './LabelledButton';
 import StatsLabel from './StatsLabel';
 import ButtonBlock from './ButtonBlock'
@@ -149,7 +149,7 @@ export default function App() {
       />
 
       <div className='button-block mt-2r'>
-        <div className="but-row">
+        <div className="display-row">
           <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
             butText={`Send a colonist ship (+${colonistIncrease})`}
             resources={resources} cost={colonistsCost} space={housing - colonists} tooltipText = {`Increases the amount of colonists by ${colonistIncrease}`}/>
@@ -159,7 +159,7 @@ export default function App() {
             resources={resources} cost={shipSizeCost} tooltipText = {`Increases the amount of colonists per ship by ${shipSizeIncrement}`}/>
         </div>
 
-        <div className="but-row">
+        <div className="display-row">
           <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
             butText={`Expand housing (+${housingIncreaseMul})`}
             resources={resources} cost={housingCost} tooltipText = {`Adds ${housingIncreaseMul} housing space for colonists`}/>
@@ -169,7 +169,7 @@ export default function App() {
             resources={resources} cost={jobsCost} tooltipText = {`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${resourcesPerWorker} ${resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${costPerUnemployed} resources daily`}/>
         </div>
 
-        <div className="but-row">
+        <div className="display-row">
           <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
             butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
             resources={resources} cost={constructionQualityCost} tooltipText = {`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`}/>

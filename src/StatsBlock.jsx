@@ -1,3 +1,5 @@
+import "./css/StatsAndButtons.css"
+
 export default function StatsBlock(props) {
     let rowComponents = [];
     props.components.forEach((comp, index) => { 
@@ -8,7 +10,7 @@ export default function StatsBlock(props) {
         }
      }) 
 
-     rowComponents = rowComponents.map((set, index)=><div className="stats-row">{set}</div>)
+     rowComponents = rowComponents.map((set, index)=><div className="display-row">{set}</div>)
 
     return (
         <section className="stats-block">
