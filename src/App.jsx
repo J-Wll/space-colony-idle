@@ -107,6 +107,10 @@ export default function App() {
     validateIncrease(constructionQuality, updateConstructionQuality, constructionQualityIncrement, undefined, resources, updateResources, constructionQualityCost, updateConstructionQualityCost, 1.5, 1);
   }
 
+  function spaceResettlement(){
+
+  }
+
   function saveGame() {
 
   }
@@ -114,6 +118,9 @@ export default function App() {
   function loadGame() {
 
   }
+
+
+  function resetGame() { }
 
   function jobLabel() {
     if (jobs > colonists) {
@@ -179,8 +186,8 @@ export default function App() {
             butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
             resources={resources} cost={constructionQualityCost} tooltipText={`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
 
-          <LabelledButton onClick={""} id="" className=""
-            butText={`TODO Space Tourism Bureau`}
+          <LabelledButton onClick={spaceResettlement} id="" className=""
+            butText={`TODO Space Resettlement Bureau`}
             resources={resources} cost={100000} tooltipText={`Adds daily colonists, one off purchase that unlocks a new set of upgrades`} />
         </div>
       </div>
@@ -191,8 +198,14 @@ export default function App() {
             butText={`TODO Save game`} tooltipText={`Saves the game`} />
 
           <LabelledButton onClick={loadGame} id="load-game-but" className="button-neutral"
-            butText={`TODO Load game`} tooltipText={`Loads the game`} />
+            butText={`TODO Load game`} tooltipText={`Loads your save game`} />
         </div>
+
+        <div className="display-row">
+          <LabelledButton onClick={resetGame} id="reset-game-but" className="button-neutral"
+            butText={`TODO Reset game`} tooltipText={`Resets your save game`} />
+        </div>
+
       </div>
     </main>
   )

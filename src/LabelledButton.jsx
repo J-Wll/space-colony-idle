@@ -13,9 +13,6 @@ export default function LabelledButton(props) {
         buyable = "button-disabled"
     }
 
-    console.log(props.id);
-    console.log(props.cost);
-
     let Clabel = props.cost != undefined ? <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>  : <></>
     // let Clabel = "ifoj"
 
