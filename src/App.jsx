@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useReducer, useEffect } from "react";
 import './css/App.css'
 import LabelledButton from './LabelledButton';
 import StatsLabel from './StatsLabel';
@@ -8,7 +8,52 @@ import StatsBlock from './StatsBlock.jsx'
 export default function App() {
   // TODO: Worth doing a reducer here?
   // [variable, functionToUpdate] = useState(defaultValue)
-  let [stats, setStats] = useState({});
+  function reducer(state, action) {
+    console.log(action.values);
+    switch (action.type) {
+      case "DAY":
+        return { ...state, day: action.value };
+      case "SHIP":
+        return { ...state, resources: action.values[0], ship: { size: action.values[1], cost: action.values[2] } }
+      default: return state;
+    }
+  };
+
+  const initialState = {
+    stats: {},
+    day: 1,
+    resources: 5000,
+    ship: {
+      size: 500,
+      cost: 5000,
+      increment: 500,
+    },
+    colonists: {
+      count: 17,
+      cost: 1000,
+    },
+    housing: {
+      count: 1000,
+      cost: 1000,
+      increment: 500,
+    },
+    jobs: {
+      count: 100,
+      cost: 1000,
+      increment: 500,
+    },
+    constructionQuality: {
+      value: 1,
+      cost: 20000,
+      increment: 1,
+    },
+    resourcesPerWorker: 1,
+    costPerUnemployed: 0.01,
+  };
+
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   let [day, setDay] = useState(1);
   let [resources, setResources] = useState(5000);
 
@@ -41,20 +86,29 @@ export default function App() {
       dailyCycle();
     }, 1000);
     return () => clearInterval(interval);
-  }, [colonists, day, jobs, resources]);
+  }, [colonists, day, state.day, jobs, resources]);
 
   // Runs every second and is responsible for value changes
   function dailyCycle() {
-    setDay(day + 1);
+    // setDay(day + 1);
+    dispatch({ type: "DAY", value: state.day + 1 })
     validateIncrease(colonists, setColonists, popIncreaseAmount(), housing);
     setResources(resourceGain());
   }
+  console.log(state);
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to set currency of cost, cost amount of the increase
   function validateIncrease(variable, setFunc, increase, maximum = false, costVariable = resources, costFunc = setResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.00, multiplier = 1) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
+
+        const target = "SHIP"
+        const targetState = state.ship;
+        // Impact to resources, increase of the variable, change of the cost amount
+        dispatch({ type: target, values: [costVariable - costAmount, variable + (increase * multiplier), costAmount *= incrementScale] })
+        console.log(state);
+
         setFunc(variable => variable + (increase * multiplier));
         costFunc(costVariable => costVariable - costAmount)
         if (costIncrementUpdateFunc != false) {
@@ -147,7 +201,7 @@ export default function App() {
   let jobsIncreaseMul = jobsIncrement * constructionQuality;
   return (
     <main>
-      <p className="fs-1r">Day: {day}</p>
+      <p className="fs-1r">Day: {state.day}</p>
       <StatsBlock
         components={[
           <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} tooltipText={`Colonists require housing and either produce resources or cost a small amount depending on employement`} />,
