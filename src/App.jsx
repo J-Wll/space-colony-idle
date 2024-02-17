@@ -6,32 +6,34 @@ import ButtonBlock from './ButtonBlock'
 import StatsBlock from './StatsBlock.jsx'
 
 export default function App() {
+  // TODO: Worth doing a reducer here?
   // [variable, functionToUpdate] = useState(defaultValue)
-  let [day, updateDay] = useState(1);
-  let [resources, updateResources] = useState(5000);
+  let [stats, setStats] = useState({});
+  let [day, setDay] = useState(1);
+  let [resources, setResources] = useState(5000);
 
-  let [shipSize, updateShipSize] = useState(500);
-  let [shipSizeCost, updateShipSizeCost] = useState(5000)
-  let [shipSizeIncrement, updateShipSizeIncrement] = useState(500)
+  let [shipSize, setShipSize] = useState(500);
+  let [shipSizeCost, setShipSizeCost] = useState(5000)
+  let [shipSizeIncrement, setShipSizeIncrement] = useState(500)
 
-  let [colonists, updateColonists] = useState(17);
-  let [colonistsCost, updateColonistsCost] = useState(1000);
+  let [colonists, setColonists] = useState(17);
+  let [colonistsCost, setColonistsCost] = useState(1000);
   // Colonists increment is shipsize (in the context of its button)
 
-  let [housing, updateHousing] = useState(1000);
-  let [housingCost, updateHousingCost] = useState(1000);
-  let [housingIncrement, updateHousingIncrement] = useState(500);
+  let [housing, setHousing] = useState(1000);
+  let [housingCost, setHousingCost] = useState(1000);
+  let [housingIncrement, setHousingIncrement] = useState(500);
 
-  let [jobs, updateJobs] = useState(100)
-  let [jobsCost, updateJobsCost] = useState(1000)
-  let [jobsIncrement, updateJobsIncrement] = useState(500)
+  let [jobs, setJobs] = useState(100)
+  let [jobsCost, setJobsCost] = useState(1000)
+  let [jobsIncrement, setJobsIncrement] = useState(500)
 
-  let [constructionQuality, updateConstructionQuality] = useState(1)
-  let [constructionQualityCost, updateConstructionQualityCost] = useState(20000)
-  let [constructionQualityIncrement, updateConstructionQualityIncrement] = useState(1)
+  let [constructionQuality, setConstructionQuality] = useState(1)
+  let [constructionQualityCost, setConstructionQualityCost] = useState(20000)
+  let [constructionQualityIncrement, setConstructionQualityIncrement] = useState(1)
 
-  let [resourcesPerWorker, updateResourcesPerWorker] = useState(1);
-  let [costPerUnemployed, updateCostPerUnemployed] = useState(0.01);
+  let [resourcesPerWorker, setResourcesPerWorker] = useState(1);
+  let [costPerUnemployed, setCostPerUnemployed] = useState(0.01);
 
   // Triggers dailyCycle every second, passes in dependencies(Ones that change often)
   useEffect(() => {
@@ -43,24 +45,24 @@ export default function App() {
 
   // Runs every second and is responsible for value changes
   function dailyCycle() {
-    updateDay(day + 1);
-    validateIncrease(colonists, updateColonists, popIncreaseAmount(), housing);
-    updateResources(resourceGain());
+    setDay(day + 1);
+    validateIncrease(colonists, setColonists, popIncreaseAmount(), housing);
+    setResources(resourceGain());
   }
 
   // Increases values based on if it can be afforded and if it is below the maximum
-  // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to update currency of cost, cost amount of the increase
-  function validateIncrease(variable, updateFunc, increase, maximum = false, costVariable = resources, costFunc = updateResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.00, multiplier = 1) {
+  // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to set currency of cost, cost amount of the increase
+  function validateIncrease(variable, setFunc, increase, maximum = false, costVariable = resources, costFunc = setResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.00, multiplier = 1) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
-        updateFunc(variable => variable + (increase * multiplier));
+        setFunc(variable => variable + (increase * multiplier));
         costFunc(costVariable => costVariable - costAmount)
         if (costIncrementUpdateFunc != false) {
           costIncrementUpdateFunc(costAmount => costAmount *= incrementScale)
         }
       }
       else {
-        updateFunc(maximum);
+        setFunc(maximum);
       }
     }
   }
@@ -88,26 +90,26 @@ export default function App() {
   }
 
   function sendColonists(a) {
-    validateIncrease(colonists, updateColonists, shipSize, housing, resources, updateResources, colonistsCost, updateColonistsCost, 1, 1);
+    validateIncrease(colonists, setColonists, shipSize, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
   }
 
   function upgradeShip() {
-    validateIncrease(shipSize, updateShipSize, shipSizeIncrement, undefined, resources, updateResources, shipSizeCost, updateShipSizeCost, 1.5, 1);
+    validateIncrease(shipSize, setShipSize, shipSizeIncrement, undefined, resources, setResources, shipSizeCost, setShipSizeCost, 1.5, 1);
   }
 
   function upgradeJobs() {
-    validateIncrease(jobs, updateJobs, jobsIncrement, undefined, resources, updateResources, jobsCost, updateJobsCost, undefined, constructionQuality);
+    validateIncrease(jobs, setJobs, jobsIncrement, undefined, resources, setResources, jobsCost, setJobsCost, undefined, constructionQuality);
   }
 
   function upgradeHousing() {
-    validateIncrease(housing, updateHousing, housingIncrement, undefined, resources, updateResources, housingCost, updateHousingCost, undefined, constructionQuality);
+    validateIncrease(housing, setHousing, housingIncrement, undefined, resources, setResources, housingCost, setHousingCost, undefined, constructionQuality);
   }
 
   function upgradeConstruction() {
-    validateIncrease(constructionQuality, updateConstructionQuality, constructionQualityIncrement, undefined, resources, updateResources, constructionQualityCost, updateConstructionQualityCost, 1.5, 1);
+    validateIncrease(constructionQuality, setConstructionQuality, constructionQualityIncrement, undefined, resources, setResources, constructionQualityCost, setConstructionQualityCost, 1.5, 1);
   }
 
-  function spaceResettlement(){
+  function spaceResettlement() {
 
   }
 
