@@ -9,12 +9,11 @@ export default function App() {
   // TODO: Worth doing a reducer here?
   // [variable, functionToUpdate] = useState(defaultValue)
   function reducer(state, action) {
-    console.log(action.values);
     switch (action.type) {
       case "DAY":
         return { ...state, day: action.value };
       case "SHIP":
-        return { ...state, resources: action.values[0], ship: { size: action.values[1], cost: action.values[2] } }
+        return { ...state, resources: action.values.resourceCost, ship: { size: action.values.variableIncrease, cost: action.values.costChange, increment: state.ship.increment } }
       default: return state;
     }
   };
@@ -102,13 +101,7 @@ export default function App() {
   function validateIncrease(variable, setFunc, increase, maximum = false, costVariable = resources, costFunc = setResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.00, multiplier = 1) {
     if (costAmount <= costVariable) {
       if (maximum === false || variable + increase < maximum) {
-
-        const target = "SHIP"
-        const targetState = state.ship;
         // Impact to resources, increase of the variable, change of the cost amount
-        dispatch({ type: target, values: [costVariable - costAmount, variable + (increase * multiplier), costAmount *= incrementScale] })
-        console.log(state);
-
         setFunc(variable => variable + (increase * multiplier));
         costFunc(costVariable => costVariable - costAmount)
         if (costIncrementUpdateFunc != false) {
@@ -117,6 +110,22 @@ export default function App() {
       }
       else {
         setFunc(maximum);
+      }
+    }
+  }
+
+  function validateIncreaseRed(target, variable, increase, maximum = false, costVariable = resources, costAmount = 0, incrementScale = 1.00, multiplier = 1) {
+    if (costAmount <= costVariable) {
+      if (maximum === false || variable + increase < maximum) {
+        // Impact to resources, increase of the variable, change of the cost amount
+        dispatch({
+          type: target, values: { resourceCost: costVariable - costAmount, variableIncrease: variable + (increase * multiplier), costChange: costAmount *= incrementScale }
+        })
+        console.log(state);
+      }
+      else {
+        dispatch({ type: target, values: { variableIncrease: maximum } })
+        console.log(state);
       }
     }
   }
@@ -144,11 +153,12 @@ export default function App() {
   }
 
   function sendColonists(a) {
-    validateIncrease(colonists, setColonists, shipSize, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
+    validateIncrease(colonists, setColonists, state.ship.size, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
   }
 
   function upgradeShip() {
-    validateIncrease(shipSize, setShipSize, shipSizeIncrement, undefined, resources, setResources, shipSizeCost, setShipSizeCost, 1.5, 1);
+    // validateIncrease(shipSize, setShipSize, shipSizeIncrement, undefined, resources, setResources, shipSizeCost, setShipSizeCost, 1.5, 1);
+    validateIncreaseRed("SHIP", state.ship.size, state.ship.increment, undefined, resources, state.ship.cost, 1.5, 1);
   }
 
   function upgradeJobs() {
@@ -196,7 +206,7 @@ export default function App() {
 
   // values for stats/buttons
   let [jobLabelClass, textForJobLabel] = jobLabel();
-  let colonistIncrease = colonists + shipSize > housing ? housing - colonists : shipSize;
+  let colonistIncrease = colonists + state.ship.size > housing ? housing - colonists : state.ship.size;
   let housingIncreaseMul = housingIncrement * constructionQuality;
   let jobsIncreaseMul = jobsIncrement * constructionQuality;
   return (
@@ -209,7 +219,7 @@ export default function App() {
           <StatsLabel key="3" className={``} labelText={`Housing space: ${housing}`} tooltipText={`Required to house colonists${""}`} />,
           <StatsLabel key="4" className={``} labelText={`Jobs: ${jobs}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
           <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} tooltipText={`Approximate population gain per day${""}`} />,
-          <StatsLabel key="6" className={``} labelText={`Ship size: ${shipSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
+          <StatsLabel key="6" className={``} labelText={`Ship size: ${state.ship.size}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
           <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} tooltipText={`Amount of free jobs/unemployed colonists${""}`} />,
           <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
           <StatsLabel key="9" className={``} labelText={`Construction quality: ${constructionQuality}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
@@ -223,8 +233,8 @@ export default function App() {
             resources={resources} cost={colonistsCost} space={housing - colonists} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
 
           <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-            butText={`Expand shipyards (+${shipSizeIncrement})`}
-            resources={resources} cost={shipSizeCost} tooltipText={`Increases the amount of colonists per ship by ${shipSizeIncrement}`} />
+            butText={`Expand shipyards (+${state.ship.increment})`}
+            resources={resources} cost={state.ship.cost} tooltipText={`Increases the amount of colonists per ship by ${state.ship.increment}`} />
         </div>
 
         <div className="display-row">
