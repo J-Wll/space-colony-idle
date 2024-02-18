@@ -13,7 +13,7 @@ export default function App() {
       case "DAY":
         return { ...state, day: action.value };
       case "SHIP":
-        return { ...state, resources: action.values.resourceCost, ship: { size: action.values.variableIncrease, cost: action.values.costChange, increment: state.ship.increment } }
+        return { ...state, resources: action.values.resourceCost ? action.values.resourceCost : state.resources, ship: { size: action.values.variableIncrease ? action.values.variableIncrease : state.ship.size, cost: action.values.costChange ? action.values.costChange : state.ship.cost, increment: action.values.incrementChange ? action.values.incrementChange : state.ship.increment } }
       default: return state;
     }
   };
