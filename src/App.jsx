@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useReducer, useRef, useEffect } from "react";
 import './css/App.css'
 import LabelledButton from './LabelledButton';
 import StatsLabel from './StatsLabel';
@@ -35,6 +35,10 @@ export default function App() {
   };
 
   const [ste, setState] = useState(initialState);
+
+  const saveDlRef = useRef(null);
+  const saveUlRef = useRef(null);
+
   // days/seconds til auto save
   const autoSaveFreq = 10;
 
@@ -149,10 +153,36 @@ export default function App() {
   }
 
   function saveBackup() {
+    console.log("Backup saved");
+    // https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ste));
+    const dlAnchorElem = saveDlRef.current;
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "SpaceColonyIdleSave.json");
+    dlAnchorElem.click();
 
   }
 
+  // triggers the file input
   function loadBackup() {
+    console.log("Backup loaded");
+    saveUlRef.current.click();
+  }
+
+  // triggered by the file input, loads the save
+  function loadBackupSave(event) {
+    const file = event.target.files[0];
+    console.log(file);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileContent = JSON.parse(reader.result);
+      console.log("File content:", fileContent);
+      setState(fileContent);
+    };
+    reader.readAsText(file);
+    // so that uploading the same file twice still works. doesn't trigger the onchange otherwise
+    saveUlRef.current.value = null
 
   }
 
@@ -241,10 +271,10 @@ export default function App() {
 
         <div className="display-row">
           <LabelledButton onClick={saveBackup} id="save-backup-but" className="button-neutral"
-            butText={`TODO Save Backup (JSON)`} tooltipText={`Saves a local JSON file for the game save`} />
+            butText={`Save Backup File`} tooltipText={`Saves a local JSON file for the game save`} />
 
           <LabelledButton onClick={loadBackup} id="load-backup-but" className="button-neutral"
-            butText={`TODO Load Backup (JSON)`} tooltipText={`Loads a local JSON file for the game save`} />
+            butText={`Load from Backup File`} tooltipText={`Loads a local JSON file for the game save`} />
         </div>
 
         <div className="display-row">
@@ -253,6 +283,17 @@ export default function App() {
         </div>
 
       </div>
+
+      {/* invisible helpers for downloading and uploading */}
+      <a id="downloadAnchorElem" style={{ display: "none" }} ref={saveDlRef}></a>
+      <input
+        type="file"
+        id="fileInput"
+        style={{ display: 'none' }}
+        onChange={loadBackupSave}
+        ref={saveUlRef}
+      />
+
     </main>
   )
 }
@@ -260,6 +301,10 @@ export default function App() {
 // todo:
 // Space Bureau upgrade, adds daily pop growth, maybe a daily resource cost
 // After purchasing it once (10000+ cost) it unlocks a new set of upgrades below the current ones
+// Space elevator
+// Mass gun (what are they called?)
+// Construction incentives (Population starts building houses and jobs)
+// Reproduction incentives (Increase birth rate, in exchange for less money per pop? like bc it costs, could be a toggle after purchasing)
 
 // Resource cost scaling (Capacity for this implemented, but not really used yet)
 
