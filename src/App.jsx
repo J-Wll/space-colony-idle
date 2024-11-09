@@ -35,8 +35,8 @@ export default function App() {
   };
 
   const [ste, setState] = useState(initialState);
-
-
+  // days/seconds til auto save
+  const autoSaveFreq = 10;
 
   // Triggers dailyCycle every second, passes in dependencies(Ones that change often)
   useEffect(() => {
@@ -51,9 +51,11 @@ export default function App() {
     setState(ste => ({ ...ste, "day": ste.day + 1 }));
     validateIncrease("colonistCount", popIncreaseAmount(), -1, ste.housingCount)
     setState(ste => ({ ...ste, "resources": resourceGain() }));
+    // auto save every x days
+    if (ste.day % autoSaveFreq === 0) {
+      saveGame();
+    }
   }
-
-  console.log(ste);
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to set currency of cost, cost amount of the increase
@@ -63,15 +65,13 @@ export default function App() {
     const varVal = ste[varName];
 
     if (costAmount > costVariable) {
-      console.log("Can't afford");
-      console.log(costAmount, costVariable);
+      console.log("Can't afford this");
       return;
     }
 
     // If no maximum or the new amount is less than the maximum
     if (maximum === false || varVal + increase < maximum) {
       setState(ste => ({ ...ste, [varName]: ste[varName] + (increase * multiplier) }));
-      console.log(ste[varName]);
       setState(ste => ({ ...ste, [costName]: ste[costName] - costAmount }));
 
       // if the increment update isn't false update the increment
@@ -138,11 +138,14 @@ export default function App() {
   }
 
   function saveGame() {
-
+    console.log("Game Saved");
+    localStorage.setItem("SpaceColonyIdleSave", JSON.stringify(ste));
   }
 
   function loadGame() {
-
+    console.log("Game Loaded");
+    const save = JSON.parse(localStorage.getItem("SpaceColonyIdleSave"));
+    setState(save);
   }
 
   function saveBackup() {
@@ -230,10 +233,10 @@ export default function App() {
       <div className='button-block mt-2r'>
         <div className="display-row">
           <LabelledButton onClick={saveGame} id="save-game-but" className="button-neutral"
-            butText={`TODO Save game`} tooltipText={`Saves the game`} />
+            butText={`Save Game`} tooltipText={`Saves the game`} />
 
           <LabelledButton onClick={loadGame} id="load-game-but" className="button-neutral"
-            butText={`TODO Load game`} tooltipText={`Loads your save game`} />
+            butText={`Load Game`} tooltipText={`Loads your save game`} />
         </div>
 
         <div className="display-row">
@@ -246,7 +249,7 @@ export default function App() {
 
         <div className="display-row">
           <LabelledButton onClick={resetGame} id="reset-game-but" className="button-neutral"
-            butText={`Reset game`} tooltipText={`Resets your save game`} />
+            butText={`Reset Game`} tooltipText={`Resets your save game`} />
         </div>
 
       </div>
