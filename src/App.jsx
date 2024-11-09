@@ -6,78 +6,37 @@ import ButtonBlock from './ButtonBlock'
 import StatsBlock from './StatsBlock.jsx'
 
 export default function App() {
-  // TODO: Worth doing a reducer here?
-  // [variable, functionToUpdate] = useState(defaultValue)
-  function reducer(state, action) {
-    switch (action.type) {
-      case "DAY":
-        return { ...state, day: action.value };
-      case "SHIP":
-        return { ...state, resources: action.values.resourceCost ? action.values.resourceCost : state.resources, ship: { size: action.values.variableIncrease ? action.values.variableIncrease : state.ship.size, cost: action.values.costChange ? action.values.costChange : state.ship.cost, increment: action.values.incrementChange ? action.values.incrementChange : state.ship.increment } }
-      default: return state;
-    }
-  };
-
   const initialState = {
     stats: {},
     day: 1,
     resources: 5000,
-    ship: {
-      size: 500,
-      cost: 5000,
-      increment: 500,
-    },
-    colonists: {
-      count: 17,
-      cost: 1000,
-    },
-    housing: {
-      count: 1000,
-      cost: 1000,
-      increment: 500,
-    },
-    jobs: {
-      count: 100,
-      cost: 1000,
-      increment: 500,
-    },
-    constructionQuality: {
-      value: 1,
-      cost: 20000,
-      increment: 1,
-    },
+
+    shipSize: 500,
+    shipCost: 5000,
+    shipIncrement: 500,
+
+    colonistCount: 17,
+    colonistCost: 1000,
+
+    housingCount: 1000,
+    housingCost: 1000,
+    housingIncrement: 500,
+
+    jobsCount: 100,
+    jobsCost: 1000,
+    jobsIncrement: 500,
+
+    constructionQualityValue: 1,
+    constructionQualityCost: 20000,
+    constructionQualityIncrement: 1,
+
     resourcesPerWorker: 1,
     costPerUnemployed: 0.01,
   };
 
+  const [ste, setState] = useState(initialState);
 
-  const [state, dispatch] = useReducer(reducer, initialState);
 
-  let [day, setDay] = useState(1);
-  let [resources, setResources] = useState(5000);
-
-  let [shipSize, setShipSize] = useState(500);
-  let [shipSizeCost, setShipSizeCost] = useState(5000)
-  let [shipSizeIncrement, setShipSizeIncrement] = useState(500)
-
-  let [colonists, setColonists] = useState(17);
-  let [colonistsCost, setColonistsCost] = useState(1000);
-  // Colonists increment is shipsize (in the context of its button)
-
-  let [housing, setHousing] = useState(1000);
-  let [housingCost, setHousingCost] = useState(1000);
-  let [housingIncrement, setHousingIncrement] = useState(500);
-
-  let [jobs, setJobs] = useState(100)
-  let [jobsCost, setJobsCost] = useState(1000)
-  let [jobsIncrement, setJobsIncrement] = useState(500)
-
-  let [constructionQuality, setConstructionQuality] = useState(1)
-  let [constructionQualityCost, setConstructionQualityCost] = useState(20000)
-  let [constructionQualityIncrement, setConstructionQualityIncrement] = useState(1)
-
-  let [resourcesPerWorker, setResourcesPerWorker] = useState(1);
-  let [costPerUnemployed, setCostPerUnemployed] = useState(0.01);
 
   // Triggers dailyCycle every second, passes in dependencies(Ones that change often)
   useEffect(() => {
@@ -85,48 +44,44 @@ export default function App() {
       dailyCycle();
     }, 1000);
     return () => clearInterval(interval);
-  }, [colonists, day, state.day, jobs, resources]);
+  }, [ste]);
 
   // Runs every second and is responsible for value changes
   function dailyCycle() {
-    // setDay(day + 1);
-    dispatch({ type: "DAY", value: state.day + 1 })
-    validateIncrease(colonists, setColonists, popIncreaseAmount(), housing);
-    setResources(resourceGain());
+    setState(ste => ({ ...ste, "day": ste.day + 1 }));
+    validateIncrease("colonistCount", popIncreaseAmount(), -1, ste.housingCount)
+    setState(ste => ({ ...ste, "resources": resourceGain() }));
   }
-  console.log(state);
+
+  console.log(ste);
 
   // Increases values based on if it can be afforded and if it is below the maximum
   // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to set currency of cost, cost amount of the increase
-  function validateIncrease(variable, setFunc, increase, maximum = false, costVariable = resources, costFunc = setResources, costAmount = 0, costIncrementUpdateFunc = false, incrementScale = 1.00, multiplier = 1) {
-    if (costAmount <= costVariable) {
-      if (maximum === false || variable + increase < maximum) {
-        // Impact to resources, increase of the variable, change of the cost amount
-        setFunc(variable => variable + (increase * multiplier));
-        costFunc(costVariable => costVariable - costAmount)
-        if (costIncrementUpdateFunc != false) {
-          costIncrementUpdateFunc(costAmount => costAmount *= incrementScale)
-        }
-      }
-      else {
-        setFunc(maximum);
+  function validateIncrease(varName, increase, costAmountName, maximum = false, costName = "resources", increment = false, incrementScale = 1.00, multiplier = 1) {
+    const costAmount = ste[costAmountName];
+    const costVariable = ste[costName];
+    const varVal = ste[varName];
+
+    if (costAmount > costVariable) {
+      console.log("Can't afford");
+      console.log(costAmount, costVariable);
+      return;
+    }
+
+    // If no maximum or the new amount is less than the maximum
+    if (maximum === false || varVal + increase < maximum) {
+      setState(ste => ({ ...ste, [varName]: ste[varName] + (increase * multiplier) }));
+      console.log(ste[varName]);
+      setState(ste => ({ ...ste, [costName]: ste[costName] - costAmount }));
+
+      // if the increment update isn't false update the increment
+      if (increment != false) {
+        setState(ste => ({ ...ste, [costAmountName]: ste[costAmountName] *= incrementScale }));
       }
     }
-  }
-
-  function validateIncreaseRed(target, variable, increase, maximum = false, costVariable = resources, costAmount = 0, incrementScale = 1.00, multiplier = 1) {
-    if (costAmount <= costVariable) {
-      if (maximum === false || variable + increase < maximum) {
-        // Impact to resources, increase of the variable, change of the cost amount
-        dispatch({
-          type: target, values: { resourceCost: costVariable - costAmount, variableIncrease: variable + (increase * multiplier), costChange: costAmount *= incrementScale }
-        })
-        console.log(state);
-      }
-      else {
-        dispatch({ type: target, values: { variableIncrease: maximum } })
-        console.log(state);
-      }
+    // Otherwise, they have the money so set it to the maximum. (In case the value in 99, with an increase of 2 and a maximum of 100. It should be 100 instead of staying 99)
+    else {
+      setState(ste => ({ ...ste, [varName]: maximum }));
     }
   }
 
@@ -141,36 +96,41 @@ export default function App() {
     let baseLine = 0.92
     // Estimated value for display, seems to be roughly accurate. Haven't worked out the correct calculation that accounts for the randomness
     if (display === true) {
-      return Math.round(((colonists / popPer) + 0.04) * 100) / 100
+      // return Math.round((Math.random() + minimum) * ((ste.colonistCount / popPer) + baseLine)* 100) /100 ;
+      return Math.round(((ste.colonistCount / popPer) + 0.04) * 100) / 100
     }
-    return Math.floor((Math.random() + minimum) * ((colonists / popPer) + baseLine));
+    return Math.floor((Math.random() + minimum) * ((ste.colonistCount / popPer) + baseLine));
   }
 
   function resourceGain() {
     // Either adds colonists count or job count based on if there are more jobs than colonists. Unemployed colonists cost 0.01 per day.
-    return jobs > colonists ? resources + (colonists * resourcesPerWorker)
-      : (resources + (jobs * resourcesPerWorker)) + ((jobs - colonists) * costPerUnemployed)
+    return ste.jobsCount > ste.colonistCount ? ste.resources + (ste.colonistCount * ste.resourcesPerWorker)
+      : (ste.resources + (ste.jobsCount * ste.resourcesPerWorker)) + ((ste.jobsCount - ste.colonistCount) * ste.costPerUnemployed)
   }
 
-  function sendColonists(a) {
-    validateIncrease(colonists, setColonists, state.ship.size, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
+  function sendColonists() {
+    // validateIncrease(colonists, setColonists, ste.shipSize, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
+    validateIncrease("colonistCount", ste.shipSize, "colonistCost", ste.housingCount, "resources");
   }
 
   function upgradeShip() {
     // validateIncrease(shipSize, setShipSize, shipSizeIncrement, undefined, resources, setResources, shipSizeCost, setShipSizeCost, 1.5, 1);
-    validateIncreaseRed("SHIP", state.ship.size, state.ship.increment, undefined, resources, state.ship.cost, 1.5, 1);
+    validateIncrease("shipSize", ste.shipIncrement, "shipCost", undefined, "resources", true, 1.5);
   }
 
   function upgradeJobs() {
-    validateIncrease(jobs, setJobs, jobsIncrement, undefined, resources, setResources, jobsCost, setJobsCost, undefined, constructionQuality);
+    // validateIncrease(jobs, setJobs, jobsIncrement, undefined, resources, setResources, jobsCost, setJobsCost, undefined, constructionQuality);
+    validateIncrease("jobsCount", ste.jobsIncrement, "jobsCost", undefined, "resources", false, undefined, ste.constructionQualityValue);
   }
 
   function upgradeHousing() {
-    validateIncrease(housing, setHousing, housingIncrement, undefined, resources, setResources, housingCost, setHousingCost, undefined, constructionQuality);
+    // validateIncrease(housing, setHousing, housingIncrement, undefined, resources, setResources, housingCost, setHousingCost, undefined, constructionQuality);
+    validateIncrease("housingCount", ste.housingIncrement, "housingCost", undefined, "resources", false, undefined, ste.constructionQualityValue);
   }
 
   function upgradeConstruction() {
-    validateIncrease(constructionQuality, setConstructionQuality, constructionQualityIncrement, undefined, resources, setResources, constructionQualityCost, setConstructionQualityCost, 1.5, 1);
+    // validateIncrease(constructionQuality, setConstructionQuality, constructionQualityIncrement, undefined, resources, setResources, constructionQualityCost, setConstructionQualityCost, 1.5, 1);
+    validateIncrease("constructionQualityValue", ste.constructionQualityIncrement, "constructionQualityCost", undefined, "resources", true, 1.5);
   }
 
   function spaceResettlement() {
@@ -185,15 +145,24 @@ export default function App() {
 
   }
 
+  function saveBackup() {
 
-  function resetGame() { }
+  }
+
+  function loadBackup() {
+
+  }
+
+  function resetGame() {
+    setState(initialState);
+  }
 
   function jobLabel() {
-    if (jobs > colonists) {
-      return ["green-text", `${jobs - colonists} Free jobs`]
+    if (ste.jobsCount > ste.colonistCount) {
+      return ["green-text", `${ste.jobsCount - ste.colonistCount} Free jobs`]
     }
-    else if (colonists > jobs) {
-      return ["red-text", `${colonists - jobs} Unemployed`]
+    else if (ste.colonistCount > ste.jobsCount) {
+      return ["red-text", `${ste.colonistCount - ste.jobsCount} Unemployed`]
     }
     else {
       return ["green-text", "Job demand met"]
@@ -201,60 +170,60 @@ export default function App() {
   }
 
   function isResGain() {
-    return resourceGain() - resources > 0 ? "green-text" : "red-text"
+    return resourceGain() - ste.resources > 0 ? "green-text" : "red-text"
   }
 
   // values for stats/buttons
   let [jobLabelClass, textForJobLabel] = jobLabel();
-  let colonistIncrease = colonists + state.ship.size > housing ? housing - colonists : state.ship.size;
-  let housingIncreaseMul = housingIncrement * constructionQuality;
-  let jobsIncreaseMul = jobsIncrement * constructionQuality;
+  let colonistIncrease = ste.colonistCount + ste.shipSize > ste.housingCount ? ste.housingCount - ste.colonistCount : ste.shipSize;
+  let housingIncreaseMul = ste.housingIncrement * ste.constructionQualityValue;
+  let jobsIncreaseMul = ste.jobsIncrement * ste.constructionQualityValue;
   return (
     <main>
-      <p className="fs-1r">Day: {state.day}</p>
+      <p className="fs-1r">Day: {ste.day}</p>
       <StatsBlock
         components={[
-          <StatsLabel key="1" className={`bold`} labelText={`${colonists} colonists`} tooltipText={`Colonists require housing and either produce resources or cost a small amount depending on employement`} />,
-          <StatsLabel key="2" className={`bold`} labelText={`Resources: ${resources.toFixed(2)}`} tooltipText={`Used to upgrade most game features${""}`} />,
-          <StatsLabel key="3" className={``} labelText={`Housing space: ${housing}`} tooltipText={`Required to house colonists${""}`} />,
-          <StatsLabel key="4" className={``} labelText={`Jobs: ${jobs}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
+          <StatsLabel key="1" className={`bold`} labelText={`${ste.colonistCount} colonists`} tooltipText={`Colonists require housing and either produce resources or cost a small amount depending on employement`} />,
+          <StatsLabel key="2" className={`bold`} labelText={`Resources: ${ste.resources.toFixed(2)}`} tooltipText={`Used to upgrade most game features${""}`} />,
+          <StatsLabel key="3" className={``} labelText={`Housing space: ${ste.housingCount}`} tooltipText={`Required to house colonists${""}`} />,
+          <StatsLabel key="4" className={``} labelText={`Jobs: ${ste.jobsCount}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
           <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} tooltipText={`Approximate population gain per day${""}`} />,
-          <StatsLabel key="6" className={``} labelText={`Ship size: ${state.ship.size}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
+          <StatsLabel key="6" className={``} labelText={`Ship size: ${ste.shipSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
           <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} tooltipText={`Amount of free jobs/unemployed colonists${""}`} />,
-          <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
-          <StatsLabel key="9" className={``} labelText={`Construction quality: ${constructionQuality}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
+          <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - ste.resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
+          <StatsLabel key="9" className={``} labelText={`Construction quality: ${ste.constructionQualityValue}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
         ]}
       />
 
       <div className='button-block mt-2r'>
         <div className="display-row">
-          <LabelledButton onClick={() => sendColonists(1)} id="send-ship-but" className=""
+          <LabelledButton onClick={sendColonists} id="send-ship-but" className=""
             butText={`Send a colonist ship (+${colonistIncrease})`}
-            resources={resources} cost={colonistsCost} space={housing - colonists} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
+            resources={ste.resources} cost={ste.colonistCost} space={ste.housingCount - ste.colonistCount} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
 
           <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-            butText={`Expand shipyards (+${state.ship.increment})`}
-            resources={resources} cost={state.ship.cost} tooltipText={`Increases the amount of colonists per ship by ${state.ship.increment}`} />
+            butText={`Expand shipyards (+${ste.shipIncrement})`}
+            resources={ste.resources} cost={ste.shipCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipIncrement}`} />
         </div>
 
         <div className="display-row">
           <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
             butText={`Expand housing (+${housingIncreaseMul})`}
-            resources={resources} cost={housingCost} tooltipText={`Adds ${housingIncreaseMul} housing space for colonists`} />
+            resources={ste.resources} cost={ste.housingCost} tooltipText={`Adds ${housingIncreaseMul} housing space for colonists`} />
 
           <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
             butText={`Create jobs (+${jobsIncreaseMul})`}
-            resources={resources} cost={jobsCost} tooltipText={`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${resourcesPerWorker} ${resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${costPerUnemployed} resources daily`} />
+            resources={ste.resources} cost={ste.jobsCost} tooltipText={`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${ste.resourcesPerWorker} ${ste.resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${ste.costPerUnemployed} resources daily`} />
         </div>
 
         <div className="display-row">
           <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
-            butText={`Upgrade construction (+${constructionQualityIncrement}*)`}
-            resources={resources} cost={constructionQualityCost} tooltipText={`Adds ${constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
+            butText={`Upgrade construction (+${ste.constructionQualityIncrement}*)`}
+            resources={ste.resources} cost={ste.constructionQualityCost} tooltipText={`Adds ${ste.constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
 
           <LabelledButton onClick={spaceResettlement} id="" className=""
             butText={`TODO Space Resettlement Bureau`}
-            resources={resources} cost={100000} tooltipText={`Adds daily colonists, one off purchase that unlocks a new set of upgrades`} />
+            resources={ste.resources} cost={100000} tooltipText={`Adds daily colonists, one off purchase that unlocks a new set of upgrades`} />
         </div>
       </div>
 
@@ -268,8 +237,16 @@ export default function App() {
         </div>
 
         <div className="display-row">
+          <LabelledButton onClick={saveBackup} id="save-backup-but" className="button-neutral"
+            butText={`TODO Save Backup (JSON)`} tooltipText={`Saves a local JSON file for the game save`} />
+
+          <LabelledButton onClick={loadBackup} id="load-backup-but" className="button-neutral"
+            butText={`TODO Load Backup (JSON)`} tooltipText={`Loads a local JSON file for the game save`} />
+        </div>
+
+        <div className="display-row">
           <LabelledButton onClick={resetGame} id="reset-game-but" className="button-neutral"
-            butText={`TODO Reset game`} tooltipText={`Resets your save game`} />
+            butText={`Reset game`} tooltipText={`Resets your save game`} />
         </div>
 
       </div>
