@@ -32,6 +32,17 @@ export default function App() {
 
     resourcesPerWorker: 1,
     costPerUnemployed: 0.01,
+
+    upgrades: [],
+    passiveUpgrades: []
+  };
+
+  const allUpgrades = {
+    "SpaceResettlementBureau": {
+      "function": function () {
+
+      }, "level": 0
+    }
   };
 
   const [ste, setState] = useState(initialState);
@@ -50,11 +61,16 @@ export default function App() {
     return () => clearInterval(interval);
   }, [ste]);
 
+  function updateOne(name, newValue) {
+    setState(ste => ({ ...ste, [name]: newValue }));
+  }
+
   // Runs every second and is responsible for value changes
   function dailyCycle() {
-    setState(ste => ({ ...ste, "day": ste.day + 1 }));
+    updateOne("day", (ste.day + 1));
     validateIncrease("colonistCount", popIncreaseAmount(), -1, ste.housingCount)
-    setState(ste => ({ ...ste, "resources": resourceGain() }));
+    updateOne("resources", resourceGain());
+
     // auto save every x days
     if (ste.day % autoSaveFreq === 0) {
       saveGame();
@@ -75,17 +91,17 @@ export default function App() {
 
     // If no maximum or the new amount is less than the maximum
     if (maximum === false || varVal + increase < maximum) {
-      setState(ste => ({ ...ste, [varName]: ste[varName] + (increase * multiplier) }));
-      setState(ste => ({ ...ste, [costName]: ste[costName] - costAmount }));
+      updateOne(varName, ste[varName] + (increase * multiplier));
+      updateOne(costName, ste[costName] - costAmount);
 
       // if the increment update isn't false update the increment
       if (increment != false) {
-        setState(ste => ({ ...ste, [costAmountName]: ste[costAmountName] *= incrementScale }));
+        updateOne(costAmountName, ste[costAmountName] * incrementScale);
       }
     }
     // Otherwise, they have the money so set it to the maximum. (In case the value in 99, with an increase of 2 and a maximum of 100. It should be 100 instead of staying 99)
     else {
-      setState(ste => ({ ...ste, [varName]: maximum }));
+      updateOne(varName, maximum);
     }
   }
 
