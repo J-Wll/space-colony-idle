@@ -33,6 +33,7 @@ export default function App() {
     resourcesPerWorker: 1,
     costPerUnemployed: 0.01,
 
+    // 100000
     upgrades: {
       "spaceResettlement": { "level": 0, "cost": 100000, "maximum": 1 }
     },
@@ -222,7 +223,7 @@ export default function App() {
 
 
 
-  function spaceResettlement(e) {
+  function spaceResettlement() {
     // updateUpgrade("spaceResettlement", 1);
     validateUpgrade("spaceResettlement", 1);
   }
@@ -293,84 +294,105 @@ export default function App() {
   }
 
   // values for stats/buttons
-  let [jobLabelClass, textForJobLabel] = jobLabel();
-  let colonistIncrease = ste.colonistCount + ste.shipSize > ste.housingCount ? ste.housingCount - ste.colonistCount : ste.shipSize;
-  let housingIncreaseMul = ste.housingIncrement * ste.constructionQualityValue;
-  let jobsIncreaseMul = ste.jobsIncrement * ste.constructionQualityValue;
+  const [jobLabelClass, textForJobLabel] = jobLabel();
+  const colonistIncrease = ste.colonistCount + ste.shipSize > ste.housingCount ? ste.housingCount - ste.colonistCount : ste.shipSize;
+  const housingIncreaseMul = ste.housingIncrement * ste.constructionQualityValue;
+  const jobsIncreaseMul = ste.jobsIncrement * ste.constructionQualityValue;
+  const spaceResettlementActive = ste.upgrades.spaceResettlement.level >= ste.upgrades.spaceResettlement.maximum;
+
   return (
     <main>
-      <p className="fs-1r">Day: {ste.day}</p>
-      <StatsBlock
-        components={[
-          <StatsLabel key="1" className={`bold`} labelText={`${ste.colonistCount} colonists`} tooltipText={`Colonists require housing and either produce resources or cost a small amount depending on employement`} />,
-          <StatsLabel key="2" className={`bold`} labelText={`Resources: ${ste.resources.toFixed(2)}`} tooltipText={`Used to upgrade most game features${""}`} />,
-          <StatsLabel key="3" className={``} labelText={`Housing space: ${ste.housingCount}`} tooltipText={`Required to house colonists${""}`} />,
-          <StatsLabel key="4" className={``} labelText={`Jobs: ${ste.jobsCount}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
-          <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} tooltipText={`Approximate population gain per day${""}`} />,
-          <StatsLabel key="6" className={``} labelText={`Ship size: ${ste.shipSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
-          <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} tooltipText={`Amount of free jobs/unemployed colonists${""}`} />,
-          <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - ste.resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
-          <StatsLabel key="9" className={``} labelText={`Construction quality: ${ste.constructionQualityValue}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
-        ]}
-      />
+      <div className="column">
+        <p className="fs-1r">Day: {ste.day}</p>
+        <StatsBlock
+          components={[
+            <StatsLabel key="1" className={`bold`} labelText={`${ste.colonistCount} colonists`} tooltipText={`Colonists require housing and either produce resources or cost a small amount depending on employement`} />,
+            <StatsLabel key="2" className={`bold`} labelText={`Resources: ${ste.resources.toFixed(2)}`} tooltipText={`Used to upgrade most game features${""}`} />,
+            <StatsLabel key="3" className={``} labelText={`Housing space: ${ste.housingCount}`} tooltipText={`Required to house colonists${""}`} />,
+            <StatsLabel key="4" className={``} labelText={`Jobs: ${ste.jobsCount}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
+            <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} tooltipText={`Approximate population gain per day${""}`} />,
+            <StatsLabel key="6" className={``} labelText={`Ship size: ${ste.shipSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
+            <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} tooltipText={`Amount of free jobs/unemployed colonists${""}`} />,
+            <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - ste.resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
+            <StatsLabel key="9" className={``} labelText={`Construction quality: ${ste.constructionQualityValue}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
+          ]}
+        />
 
-      <div className='button-block mt-2r'>
-        <div className="display-row">
-          <LabelledButton onClick={sendColonists} id="send-ship-but" className=""
-            butText={`Send a colonist ship (+${colonistIncrease})`}
-            resources={ste.resources} cost={ste.colonistCost} space={ste.housingCount - ste.colonistCount} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
+        <div className='button-block mt-2r'>
+          <div className="display-row">
+            <LabelledButton onClick={sendColonists} id="send-ship-but" className=""
+              butText={`Send a colonist ship (+${colonistIncrease})`}
+              resources={ste.resources} cost={ste.colonistCost} space={ste.housingCount - ste.colonistCount} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
 
-          <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-            butText={`Expand shipyards (+${ste.shipIncrement})`}
-            resources={ste.resources} cost={ste.shipCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipIncrement}`} />
+            <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
+              butText={`Expand shipyards (+${ste.shipIncrement})`}
+              resources={ste.resources} cost={ste.shipCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipIncrement}`} />
+          </div>
+
+          <div className="display-row">
+            <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
+              butText={`Expand housing (+${housingIncreaseMul})`}
+              resources={ste.resources} cost={ste.housingCost} tooltipText={`Adds ${housingIncreaseMul} housing space for colonists`} />
+
+            <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
+              butText={`Create jobs (+${jobsIncreaseMul})`}
+              resources={ste.resources} cost={ste.jobsCost} tooltipText={`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${ste.resourcesPerWorker} ${ste.resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${ste.costPerUnemployed} resources daily`} />
+          </div>
+
+          <div className="display-row">
+            <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
+              butText={`Upgrade construction (+${ste.constructionQualityIncrement}*)`}
+              resources={ste.resources} cost={ste.constructionQualityCost} tooltipText={`Adds ${ste.constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
+
+            {spaceResettlementActive ? null :
+              <LabelledButton onClick={spaceResettlement} id="" className=""
+                butText={`Space Resettlement Bureau`}
+                resources={ste.resources} cost={ste.upgrades.spaceResettlement.cost} tooltipText={`Adds one colonist per day, one off purchase that unlocks a new set of upgrades`} />
+            }
+          </div>
         </div>
 
-        <div className="display-row">
-          <LabelledButton onClick={upgradeHousing} id="upgrade-housing-but" className=""
-            butText={`Expand housing (+${housingIncreaseMul})`}
-            resources={ste.resources} cost={ste.housingCost} tooltipText={`Adds ${housingIncreaseMul} housing space for colonists`} />
+        <div className='button-block mt-2r'>
+          <div className="display-row">
+            <LabelledButton onClick={saveGame} id="save-game-but" className="button-neutral"
+              butText={`Save Game`} tooltipText={`Saves the game`} />
 
-          <LabelledButton onClick={upgradeJobs} id="upgrade-jobs-but" className=""
-            butText={`Create jobs (+${jobsIncreaseMul})`}
-            resources={ste.resources} cost={ste.jobsCost} tooltipText={`Adds ${jobsIncreaseMul} jobs for colonists, each worker produces ${ste.resourcesPerWorker} ${ste.resourcesPerWorker == 1 ? "resource" : "resources"} per day, unemployed colonists have a cost of ${ste.costPerUnemployed} resources daily`} />
-        </div>
+            <LabelledButton onClick={loadGame} id="load-game-but" className="button-neutral"
+              butText={`Load Game`} tooltipText={`Loads your save game`} />
+          </div>
 
-        <div className="display-row">
-          <LabelledButton onClick={upgradeConstruction} id="upgrade-construction-but" className=""
-            butText={`Upgrade construction (+${ste.constructionQualityIncrement}*)`}
-            resources={ste.resources} cost={ste.constructionQualityCost} tooltipText={`Adds ${ste.constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
+          <div className="display-row">
+            <LabelledButton onClick={saveBackup} id="save-backup-but" className="button-neutral"
+              butText={`Save Backup File`} tooltipText={`Saves a local JSON file for the game save`} />
 
-          {ste.upgrades.spaceResettlement.level >= ste.upgrades.spaceResettlement.maximum ? null :
-            <LabelledButton onClick={spaceResettlement} id="" className=""
-              butText={`Space Resettlement Bureau`}
-              resources={ste.resources} cost={ste.upgrades.spaceResettlement.cost} tooltipText={`Adds one colonist per day, one off purchase that unlocks a new set of upgrades`} />
-          }
+            <LabelledButton onClick={loadBackup} id="load-backup-but" className="button-neutral"
+              butText={`Load from Backup File`} tooltipText={`Loads a local JSON file for the game save`} />
+          </div>
+
+          <div className="display-row">
+            <LabelledButton onClick={resetGame} id="reset-game-but" className="button-neutral"
+              butText={`Reset Game`} tooltipText={`Resets your save game`} />
+          </div>
+
         </div>
       </div>
 
-      <div className='button-block mt-2r'>
-        <div className="display-row">
-          <LabelledButton onClick={saveGame} id="save-game-but" className="button-neutral"
-            butText={`Save Game`} tooltipText={`Saves the game`} />
+      {spaceResettlementActive ?
+        <div className="column afterSpaceResUpgrades">
+          <div className='button-block mt-2r'>
+            <div className="display-row">
+              <LabelledButton onClick={sendColonists} id="send-ship-but" className=""
+                butText={`Send a colonist ship (+${colonistIncrease})`}
+                resources={ste.resources} cost={ste.colonistCost} space={ste.housingCount - ste.colonistCount} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
 
-          <LabelledButton onClick={loadGame} id="load-game-but" className="button-neutral"
-            butText={`Load Game`} tooltipText={`Loads your save game`} />
+              <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
+                butText={`Expand shipyards (+${ste.shipIncrement})`}
+                resources={ste.resources} cost={ste.shipCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipIncrement}`} />
+            </div>
+
+          </div>
         </div>
-
-        <div className="display-row">
-          <LabelledButton onClick={saveBackup} id="save-backup-but" className="button-neutral"
-            butText={`Save Backup File`} tooltipText={`Saves a local JSON file for the game save`} />
-
-          <LabelledButton onClick={loadBackup} id="load-backup-but" className="button-neutral"
-            butText={`Load from Backup File`} tooltipText={`Loads a local JSON file for the game save`} />
-        </div>
-
-        <div className="display-row">
-          <LabelledButton onClick={resetGame} id="reset-game-but" className="button-neutral"
-            butText={`Reset Game`} tooltipText={`Resets your save game`} />
-        </div>
-
-      </div>
+        : null}
 
       {/* invisible helpers for downloading and uploading */}
       <a id="downloadAnchorElem" style={{ display: "none" }} ref={saveDlRef}></a>

@@ -8,6 +8,20 @@ body {
     box-sizing: border-box;
 }
 
+main {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.display-row {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    flex-wrap: wrap;
+}
+
+
 #root {
     width: fit-content;
     /* Center content */

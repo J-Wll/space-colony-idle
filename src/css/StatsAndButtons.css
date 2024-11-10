@@ -90,12 +90,6 @@ button {
     box-sizing: border-box;
 }
 
-.display-row {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
 .button-buyable {
     /* background-color: green; */
     color: greenyellow;
