@@ -33,17 +33,21 @@ export default function App() {
     resourcesPerWorker: 1,
     costPerUnemployed: 0.01,
 
-    upgrades: [],
+    upgrades: {
+      "spaceResettlement": { "level": 0, "cost": 100000, "maximum": 1 }
+    },
     passiveUpgrades: []
   };
 
-  const allUpgrades = {
-    "SpaceResettlementBureau": {
-      "function": function () {
-
-      }, "level": 0
+  // get level from state and apply it per upgrade
+  const upgrades = [{
+    "name": "spaceResettlement",
+    "run": function () {
+      console.log(popIncrease);
+      popIncrease += 1;
+      console.log(popIncrease);
     }
-  };
+  }];
 
   const [ste, setState] = useState(initialState);
 
@@ -59,28 +63,63 @@ export default function App() {
       dailyCycle();
     }, 1000);
     return () => clearInterval(interval);
-  }, [ste]);
+  }, [ste, ste.colonistCount]);
 
   function updateOne(name, newValue) {
     setState(ste => ({ ...ste, [name]: newValue }));
   }
 
+  function updateUpgrade(name, newLevel) {
+    setState(ste => ({
+      ...ste, upgrades: {
+        ...ste.upgrades, [name]: {
+          ...ste.upgrades[[name]], level: newLevel
+        }
+      }
+    }));
+  }
+
+  // to cache changes from multiple locations
+  let popIncrease = 0;
+
   // Runs every second and is responsible for value changes
   function dailyCycle() {
     updateOne("day", (ste.day + 1));
-    validateIncrease("colonistCount", popIncreaseAmount(), -1, ste.housingCount)
     updateOne("resources", resourceGain());
+
+    // birth rate
+    popIncrease += popIncreaseAmount();
+
+    runUpgrades();
 
     // auto save every x days
     if (ste.day % autoSaveFreq === 0) {
       saveGame();
     }
+
+    validateIncrease("colonistCount", popIncrease, false, ste.housingCount)
+
+    popIncrease = 0;
   }
 
-  // Increases values based on if it can be afforded and if it is below the maximum
-  // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to set currency of cost, cost amount of the increase
+  function runUpgrades() {
+    for (let i in upgrades) {
+      // console.log(upgrades[i].name);
+      // console.log(ste.upgrades[upgrades[i].name])
+      if (ste.upgrades[upgrades[i].name].level > 0) {
+        upgrades[i].run();
+      }
+    }
+  }
+
   function validateIncrease(varName, increase, costAmountName, maximum = false, costName = "resources", increment = false, incrementScale = 1.00, multiplier = 1) {
-    const costAmount = ste[costAmountName];
+    // Increases values based on if it can be afforded and if it is below the maximum
+    // Parameters in order: Element being changed, function to change it, increase amount, maximium amount (default is no maximum), currency of cost (default is resources), function to set currency of cost, cost amount of the increase
+    let costAmount = 0;
+    if (costAmountName) {
+      costAmount = ste[costAmountName];
+    }
+
     const costVariable = ste[costName];
     const varVal = ste[varName];
 
@@ -90,9 +129,13 @@ export default function App() {
     }
 
     // If no maximum or the new amount is less than the maximum
-    if (maximum === false || varVal + increase < maximum) {
+    if (maximum === false || varVal + (increase * multiplier) < maximum) {
+      console.log("Increase");
       updateOne(varName, ste[varName] + (increase * multiplier));
-      updateOne(costName, ste[costName] - costAmount);
+
+      if (costAmount > 0) {
+        updateOne(costName, ste[costName] - costAmount);
+      }
 
       // if the increment update isn't false update the increment
       if (increment != false) {
@@ -101,10 +144,34 @@ export default function App() {
     }
     // Otherwise, they have the money so set it to the maximum. (In case the value in 99, with an increase of 2 and a maximum of 100. It should be 100 instead of staying 99)
     else {
+      console.log("Maximum");
       updateOne(varName, maximum);
     }
   }
 
+  function validateUpgrade(upgradeName, increase, costAmountName = "cost", maximum = false, costName = "resources", increment = false, incrementScale = 1.00, multiplier = 1) {
+    let costAmount = 0;
+    if (costAmountName) {
+      console.log(upgradeName);
+      console.log(ste.upgrades[upgradeName]);
+      costAmount = ste.upgrades[upgradeName][costAmountName];
+    }
+
+    const costVariable = ste[costName];
+
+    if (costAmount > costVariable) {
+      console.log("Can't afford this");
+      return;
+    }
+
+    console.log(costAmount);
+    updateUpgrade(upgradeName, ste.upgrades[upgradeName].level + (increase * multiplier));
+
+    if (costAmount > 0) {
+      updateOne(costName, ste[costName] - costAmount);
+    }
+
+  }
 
   function popIncreaseAmount(display = false) {
     // Rounded down(0.11-1.11 * (colonists/21500) + 0.92)
@@ -153,8 +220,11 @@ export default function App() {
     validateIncrease("constructionQualityValue", ste.constructionQualityIncrement, "constructionQualityCost", undefined, "resources", true, 1.5);
   }
 
-  function spaceResettlement() {
 
+
+  function spaceResettlement(e) {
+    // updateUpgrade("spaceResettlement", 1);
+    validateUpgrade("spaceResettlement", 1);
   }
 
   function saveGame() {
@@ -270,9 +340,11 @@ export default function App() {
             butText={`Upgrade construction (+${ste.constructionQualityIncrement}*)`}
             resources={ste.resources} cost={ste.constructionQualityCost} tooltipText={`Adds ${ste.constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
 
-          <LabelledButton onClick={spaceResettlement} id="" className=""
-            butText={`TODO Space Resettlement Bureau`}
-            resources={ste.resources} cost={100000} tooltipText={`Adds daily colonists, one off purchase that unlocks a new set of upgrades`} />
+          {ste.upgrades.spaceResettlement.level >= ste.upgrades.spaceResettlement.maximum ? null :
+            <LabelledButton onClick={spaceResettlement} id="" className=""
+              butText={`Space Resettlement Bureau`}
+              resources={ste.resources} cost={ste.upgrades.spaceResettlement.cost} tooltipText={`Adds one colonist per day, one off purchase that unlocks a new set of upgrades`} />
+          }
         </div>
       </div>
 
