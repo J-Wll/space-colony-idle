@@ -11,18 +11,18 @@ export default function App() {
     day: 1,
     resources: 5000,
 
-    shipSize: 500,
-    shipCost: 5000,
-    shipIncrement: 500,
+    shipYardSize: 500,
+    shipYardCost: 10000,
+    shipYardIncrement: 500,
 
-    colonistCount: 17,
+    colonistCount: 170,
     colonistCost: 1000,
 
     housingCount: 1000,
     housingCost: 1000,
     housingIncrement: 500,
 
-    jobsCount: 100,
+    jobsCount: 500,
     jobsCost: 1000,
     jobsIncrement: 500,
 
@@ -222,23 +222,23 @@ export default function App() {
   }
 
   function sendColonists() {
-    // validateIncrease(colonists, setColonists, ste.shipSize, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
-    validateIncrease("colonistCount", ste.shipSize, "colonistCost", ste.housingCount, "resources");
+    // validateIncrease(colonists, setColonists, ste.shipYardSize, housing, resources, setResources, colonistsCost, setColonistsCost, 1, 1);
+    validateIncrease("colonistCount", ste.shipYardSize, "colonistCost", ste.housingCount, "resources");
   }
 
   function upgradeShip() {
-    // validateIncrease(shipSize, setShipSize, shipSizeIncrement, undefined, resources, setResources, shipSizeCost, setShipSizeCost, 1.5, 1);
-    validateIncrease("shipSize", ste.shipIncrement, "shipCost", undefined, "resources", true, 1.5);
+    // validateIncrease(shipYardSize, setshipYardSize, shipYardSizeIncrement, undefined, resources, setResources, shipYardSizeCost, setshipYardSizeCost, 1.5, 1);
+    validateIncrease("shipYardSize", ste.shipYardIncrement, "shipYardCost", undefined, "resources", true, 1.25);
   }
 
   function upgradeJobs() {
     // validateIncrease(jobs, setJobs, jobsIncrement, undefined, resources, setResources, jobsCost, setJobsCost, undefined, constructionQuality);
-    validateIncrease("jobsCount", ste.jobsIncrement, "jobsCost", undefined, "resources", false, undefined, ste.constructionQualityValue);
+    validateIncrease("jobsCount", ste.jobsIncrement, "jobsCost", undefined, "resources", true, 1.25, ste.constructionQualityValue);
   }
 
   function upgradeHousing() {
     // validateIncrease(housing, setHousing, housingIncrement, undefined, resources, setResources, housingCost, setHousingCost, undefined, constructionQuality);
-    validateIncrease("housingCount", ste.housingIncrement, "housingCost", undefined, "resources", false, undefined, ste.constructionQualityValue);
+    validateIncrease("housingCount", ste.housingIncrement, "housingCost", undefined, "resources", true, 1.25, ste.constructionQualityValue);
   }
 
   function upgradeConstruction() {
@@ -325,7 +325,7 @@ export default function App() {
 
   // values for stats/buttons
   const [jobLabelClass, textForJobLabel] = jobLabel();
-  const colonistIncrease = ste.colonistCount + ste.shipSize > ste.housingCount ? ste.housingCount - ste.colonistCount : ste.shipSize;
+  const colonistIncrease = ste.colonistCount + ste.shipYardSize > ste.housingCount ? ste.housingCount - ste.colonistCount : ste.shipYardSize;
   const housingIncreaseMul = ste.housingIncrement * ste.constructionQualityValue;
   const jobsIncreaseMul = ste.jobsIncrement * ste.constructionQualityValue;
   const spaceResettlementActive = ste.upgrades.spaceResettlement.level >= ste.upgrades.spaceResettlement.maximum;
@@ -341,7 +341,7 @@ export default function App() {
             <StatsLabel key="3" className={``} labelText={`Housing space: ${ste.housingCount}`} tooltipText={`Required to house colonists${""}`} />,
             <StatsLabel key="4" className={``} labelText={`Jobs: ${ste.jobsCount}`} tooltipText={`Jobs provides resources when colonists fill them${""}`} />,
             <StatsLabel key="5" className={``} labelText={`Daily growth rate: ${popIncreaseAmount(true)}`} tooltipText={`Approximate population gain per day${""}`} />,
-            <StatsLabel key="6" className={``} labelText={`Ship size: ${ste.shipSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
+            <StatsLabel key="6" className={``} labelText={`Ship size: ${ste.shipYardSize}`} tooltipText={`Amount of colonists gained per colony ship sent${""}`} />,
             <StatsLabel key="7" className={`${jobLabelClass}`} labelText={`${textForJobLabel}`} tooltipText={`Amount of free jobs/unemployed colonists${""}`} />,
             <StatsLabel key="8" className={`${isResGain()}`} labelText={`Resource gain: ${(resourceGain() - ste.resources).toFixed(2)}`} tooltipText={`Amount of resources gained per day${""}`} />,
             <StatsLabel key="9" className={``} labelText={`Construction quality: ${ste.constructionQualityValue}`} tooltipText={`Mulitplier to certain upgrades${""}`} />
@@ -355,8 +355,8 @@ export default function App() {
               resources={ste.resources} cost={ste.colonistCost} space={ste.housingCount - ste.colonistCount} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
 
             <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-              butText={`Expand shipyards (+${ste.shipIncrement})`}
-              resources={ste.resources} cost={ste.shipCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipIncrement}`} />
+              butText={`Expand shipyards (+${ste.shipYardIncrement})`}
+              resources={ste.resources} cost={ste.shipYardCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipYardIncrement}`} />
           </div>
 
           <div className="display-row">
@@ -414,8 +414,8 @@ export default function App() {
                 resources={ste.resources} cost={ste.upgrades.droneRollout.cost} tooltipText={"Roll out drones to increase worker output by 25%"} />
 
               <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
-                butText={`Expand shipyards (+${ste.shipIncrement})`}
-                resources={ste.resources} cost={ste.shipCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipIncrement}`} />
+                butText={`Expand shipyards (+${ste.shipYardIncrement})`}
+                resources={ste.resources} cost={ste.shipYardCost} tooltipText={`Increases the amount of colonists per ship by ${ste.shipYardIncrement}`} />
             </div>
 
           </div>
