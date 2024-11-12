@@ -2,7 +2,7 @@ import ToolTip from "./ToolTip";
 import "./css/StatsAndButtons.css"
 
 export default function LabelledButton(props) {
-    if (props.noRender === "true") {
+    if (props.noRender === true) {
         return (<></>)
     }
 
@@ -13,7 +13,7 @@ export default function LabelledButton(props) {
         buyable = "button-disabled"
     }
 
-    let Clabel = props.cost != undefined ? <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label>  : <></>
+    let Clabel = props.cost != undefined ? <label htmlFor={props.id}>Cost: {props.cost.toFixed(2)} resources</label> : <></>
     // let Clabel = "ifoj"
 
     return (

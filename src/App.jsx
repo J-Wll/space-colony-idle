@@ -35,20 +35,32 @@ export default function App() {
 
     // 100000
     upgrades: {
-      "spaceResettlement": { "level": 0, "cost": 100000, "maximum": 1 }
+      "spaceResettlement": { "level": 0, "cost": 100000, "maximum": 1 },
+      "droneRollout": { "level": 0, "cost": 100000, "maximum": 1 }
     },
     passiveUpgrades: []
   };
 
+  // this is an array because the effects are applied every day and it should easy to loop through
   // get level from state and apply it per upgrade
-  const upgrades = [{
-    "name": "spaceResettlement",
-    "run": function () {
-      console.log(popIncrease);
-      popIncrease += 1;
-      console.log(popIncrease);
+  const upgrades = [
+    {
+      "name": "spaceResettlement",
+      "run": function () {
+        popIncrease += 1;
+      }
+    }];
+
+  // this is an object because the effects are run once and instantly looked up 
+  const oneOffUpgrades =
+  {
+    "droneRollout": {
+      "run": function () {
+        updateOne("resourcesPerWorker", ste.resourcesPerWorker + 0.25);
+      }
     }
-  }];
+  }
+
 
   const [ste, setState] = useState(initialState);
 
@@ -82,25 +94,29 @@ export default function App() {
 
   // to cache changes from multiple locations
   let popIncrease = 0;
+  let resourceIncrease = 0;
 
   // Runs every second and is responsible for value changes
   function dailyCycle() {
     updateOne("day", (ste.day + 1));
-    updateOne("resources", resourceGain());
 
     // birth rate
     popIncrease += popIncreaseAmount();
+    // from jobs
+    resourceIncrease += resourceGain();
 
     runUpgrades();
+
+    validateIncrease("colonistCount", popIncrease, false, ste.housingCount)
+    updateOne("resources", resourceIncrease);
+
+    popIncrease = 0;
+    resourceIncrease = 0;
 
     // auto save every x days
     if (ste.day % autoSaveFreq === 0) {
       saveGame();
     }
-
-    validateIncrease("colonistCount", popIncrease, false, ste.housingCount)
-
-    popIncrease = 0;
   }
 
   function runUpgrades() {
@@ -150,7 +166,7 @@ export default function App() {
     }
   }
 
-  function validateUpgrade(upgradeName, increase, costAmountName = "cost", maximum = false, costName = "resources", increment = false, incrementScale = 1.00, multiplier = 1) {
+  function validateUpgrade(upgradeName, increase, returnVal = false, costAmountName = "cost", costName = "resources", increment = false, incrementScale = 1.00, multiplier = 1) {
     let costAmount = 0;
     if (costAmountName) {
       console.log(upgradeName);
@@ -165,6 +181,11 @@ export default function App() {
       return;
     }
 
+    if (ste.upgrades[upgradeName].maximum > ste.upgrades[upgradeName].level + 1) {
+      console.log("Max level already");
+      return
+    }
+
     console.log(costAmount);
     updateUpgrade(upgradeName, ste.upgrades[upgradeName].level + (increase * multiplier));
 
@@ -172,6 +193,10 @@ export default function App() {
       updateOne(costName, ste[costName] - costAmount);
     }
 
+    // so that code can see if it was a success without waiting for state update
+    if (returnVal) {
+      return true;
+    }
   }
 
   function popIncreaseAmount(display = false) {
@@ -222,10 +247,15 @@ export default function App() {
   }
 
 
-
   function spaceResettlement() {
-    // updateUpgrade("spaceResettlement", 1);
     validateUpgrade("spaceResettlement", 1);
+  }
+
+  function droneRollout() {
+    // if the upgrade goes through, apply it
+    if (validateUpgrade("droneRollout", 1, true)) {
+      oneOffUpgrades.droneRollout.run();
+    }
   }
 
   function saveGame() {
@@ -344,11 +374,9 @@ export default function App() {
               butText={`Upgrade construction (+${ste.constructionQualityIncrement}*)`}
               resources={ste.resources} cost={ste.constructionQualityCost} tooltipText={`Adds ${ste.constructionQualityIncrement}x effectiveness to the amount of jobs and housing made per upgrade`} />
 
-            {spaceResettlementActive ? null :
-              <LabelledButton onClick={spaceResettlement} id="" className=""
-                butText={`Space Resettlement Bureau`}
-                resources={ste.resources} cost={ste.upgrades.spaceResettlement.cost} tooltipText={`Adds one colonist per day, one off purchase that unlocks a new set of upgrades`} />
-            }
+            <LabelledButton onClick={spaceResettlement} id="" className="" noRender={spaceResettlementActive}
+              butText={`Space Resettlement Bureau`}
+              resources={ste.resources} cost={ste.upgrades.spaceResettlement.cost} tooltipText={`Adds one colonist per day, one off purchase that unlocks a new set of upgrades`} />
           </div>
         </div>
 
@@ -381,9 +409,9 @@ export default function App() {
         <div className="column afterSpaceResUpgrades">
           <div className='button-block mt-2r'>
             <div className="display-row">
-              <LabelledButton onClick={sendColonists} id="send-ship-but" className=""
-                butText={`Send a colonist ship (+${colonistIncrease})`}
-                resources={ste.resources} cost={ste.colonistCost} space={ste.housingCount - ste.colonistCount} tooltipText={`Increases the amount of colonists by ${colonistIncrease}`} />
+              <LabelledButton onClick={droneRollout} id="drone-rollout-but" className="" noRender={ste.upgrades.droneRollout.level > 0}
+                butText={`Drone rollout`}
+                resources={ste.resources} cost={ste.upgrades.droneRollout.cost} tooltipText={"Roll out drones to increase worker output by 25%"} />
 
               <LabelledButton onClick={upgradeShip} id="upgrade-ship-but" className=""
                 butText={`Expand shipyards (+${ste.shipIncrement})`}
