@@ -2,15 +2,15 @@ import "./css/StatsAndButtons.css"
 
 export default function StatsBlock(props) {
     let rowComponents = [];
-    props.components.forEach((comp, index) => { 
-        if ((index+1) % 2 != 0 && (index+1 < props.components.length)){
-            rowComponents.push([comp, props.components[index+1]])
-        } else if (props.components.length % 2 != 0 && index+1 === props.components.length){
+    props.components.forEach((comp, index) => {
+        if ((index + 1) % 2 != 0 && (index + 1 < props.components.length)) {
+            rowComponents.push([comp, props.components[index + 1]])
+        } else if (props.components.length % 2 != 0 && index + 1 === props.components.length) {
             rowComponents.push([comp])
         }
-     }) 
+    })
 
-     rowComponents = rowComponents.map((set, index)=><div className="display-row">{set}</div>)
+    rowComponents = rowComponents.map((set, index) => <div className="display-row" key={index}>{set}</div>)
 
     return (
         <section className="stats-block">
